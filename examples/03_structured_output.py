@@ -1,4 +1,4 @@
-"""02 — Structured output.
+"""03 — Structured output.
 
 Force the model to return a typed Pydantic model instead of free text by
 passing `output_type=` to the Agent. The model is given a schema and must

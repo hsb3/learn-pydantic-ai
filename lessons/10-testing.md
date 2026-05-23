@@ -1,6 +1,6 @@
-# Lesson 09 — Testing with TestModel and FunctionModel
+# Lesson 10 — Testing with TestModel and FunctionModel
 
-**Code:** `examples/09_testing.py` *(run with `pytest`, not `python`)*
+**Code:** `examples/10_testing.py` *(run with `pytest`, not `python`)*
 
 ## Goal
 Write deterministic, fast tests for agent behaviour without calling a real LLM.
@@ -17,13 +17,13 @@ Both doubles plug in via `agent.override(model=...)`, a context manager that swa
 Never set `agent.model = SomeModel()` directly. The override context manager is the only sanctioned way to swap; it restores the original on exit.
 
 ## Walk the code
-- `examples/09_testing.py:48` — `with weather_agent.override(model=TestModel()):` — three lines, zero assumptions about the real model.
-- `examples/09_testing.py:56` — `_scripted_model` inspects `messages` to decide whether the tool has already returned, then emits the next `ModelResponse`. This is the FunctionModel pattern: branch on the state of the conversation so far.
-- `examples/09_testing.py:69–76` — Note `tool_name="final_result"` for the structured output step. That's the auto-registered tool pydantic-ai uses to deliver typed output.
+- `examples/10_testing.py:48` — `with weather_agent.override(model=TestModel()):` — three lines, zero assumptions about the real model.
+- `examples/10_testing.py:56` — `_scripted_model` inspects `messages` to decide whether the tool has already returned, then emits the next `ModelResponse`. This is the FunctionModel pattern: branch on the state of the conversation so far.
+- `examples/10_testing.py:69–76` — Note `tool_name="final_result"` for the structured output step. That's the auto-registered tool pydantic-ai uses to deliver typed output.
 
 ## Run
 ```bash
-uv run pytest examples/09_testing.py -v
+uv run pytest examples/10_testing.py -v
 ```
 Expected: 3 tests pass in under a second. No network calls.
 
@@ -38,4 +38,4 @@ Expected: 3 tests pass in under a second. No network calls.
 - **Structured output adds a hidden tool.** When you script a `FunctionModel` for a structured-output agent, you emit a call to `tool_name="final_result"` to deliver the output, not a `TextPart`.
 
 ## Bridge
-You can build, run, and test single agents. Lesson 10 chains agents together — one agent calls another via a tool.
+You can build, run, and test single agents. Lesson 11 chains agents together — one agent calls another via a tool.

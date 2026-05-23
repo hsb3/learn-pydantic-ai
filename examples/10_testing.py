@@ -1,4 +1,4 @@
-"""09 — Testing with TestModel and FunctionModel.
+"""10 — Testing with TestModel and FunctionModel.
 
 Two test doubles ship with pydantic-ai:
 
@@ -12,7 +12,7 @@ Two test doubles ship with pydantic-ai:
 Both plug in via `agent.override(model=...)`. Never set `agent.model = ...`
 directly — the override context manager restores the real model afterwards.
 
-Run with:  uv run pytest examples/09_testing.py -v
+Run with:  uv run pytest examples/10_testing.py -v
 """
 
 from __future__ import annotations

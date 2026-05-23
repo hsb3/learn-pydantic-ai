@@ -1,4 +1,4 @@
-"""05 — Dynamic instructions (`@agent.instructions`).
+"""06 — Dynamic instructions (`@agent.instructions`).
 
 Static instructions go on `Agent(instructions=...)`. But sometimes the
 prompt needs information you only have at run time: the current date,

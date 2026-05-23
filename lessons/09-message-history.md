@@ -1,6 +1,6 @@
-# Lesson 08 — Message history
+# Lesson 09 — Message history
 
-**Code:** `examples/08_message_history.py`
+**Code:** `examples/09_message_history.py`
 
 ## Goal
 Carry context across multiple `run_sync` calls to build a multi-turn conversation.
@@ -19,13 +19,13 @@ The chat-loop pattern: pass `result.all_messages()` as `message_history=` on the
 When `message_history` is non-empty, pydantic-ai **does not** re-add the system prompt — it assumes the prior messages already carry the relevant context. If you change `instructions`, the change won't take effect mid-conversation unless you reset history.
 
 ## Walk the code
-- `examples/08_message_history.py:30` — `history = []` starts empty.
-- `examples/08_message_history.py:38` — `agent.run_sync(prompt, message_history=history)`. First iteration sends just the user prompt (no history); later iterations thread the prior turns.
-- `examples/08_message_history.py:41` — `history = result.all_messages()`. Overwriting (not appending) is the right move — `all_messages()` already includes the prior history.
+- `examples/09_message_history.py:30` — `history = []` starts empty.
+- `examples/09_message_history.py:38` — `agent.run_sync(prompt, message_history=history)`. First iteration sends just the user prompt (no history); later iterations thread the prior turns.
+- `examples/09_message_history.py:41` — `history = result.all_messages()`. Overwriting (not appending) is the right move — `all_messages()` already includes the prior history.
 
 ## Run
 ```bash
-uv run python examples/08_message_history.py
+uv run python examples/09_message_history.py
 ```
 Expected: a 3-turn Socratic dialogue where each agent reply references prior context. Ends with `(messages accumulated: 6)` — 3 user prompts + 3 assistant responses.
 
@@ -40,4 +40,4 @@ Expected: a 3-turn Socratic dialogue where each agent reply references prior con
 - **`new_messages()` vs `all_messages()`.** Easy to mix up. Rule: use `all_messages()` for what you'll pass forward; use `new_messages()` only when you want to log just this turn.
 
 ## Bridge
-You now have a conversational agent. Lesson 09 makes it testable.
+You now have a conversational agent. Lesson 10 makes it testable.

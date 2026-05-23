@@ -1,20 +1,20 @@
 # Learn Pydantic AI
 
-A self-paced curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent framework. Eleven runnable examples + a matching one-page lesson for each.
+A self-paced curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent framework. Eleven runnable examples + a matching one-page lesson, plus an API-tour reference lesson up front.
 
 ## Key features
 
-- **11 progressive examples** — one new concept per lesson, every example runs end-to-end
+- **12 progressive lessons** — an API tour first, then 11 examples that introduce one concept each
 - **One-page lessons** in `lessons/` — mental model, code walkthrough, "try it" prompts, gotchas
 - **Google Gemini throughout** — single provider, single API key
-- **Real tests** — lesson 09 ships `TestModel` + `FunctionModel` examples that pass under `pytest`
+- **Real tests** — Lesson 10 ships `TestModel` + `FunctionModel` examples that pass under `pytest`
 
 ## Quick start
 
 ```bash
 uv sync                                       # install deps
 cp .env.example .env                          # add your GOOGLE_API_KEY
-uv run python examples/01_hello_agent.py
+uv run python examples/02_hello_agent.py
 ```
 
 Get a Gemini API key at <https://aistudio.google.com/apikey>.
@@ -28,30 +28,33 @@ For each lesson: read the one-pager → run the example → try a small modifica
 ## Structure
 
 ```
-examples/         runnable .py files, one per lesson
-  agent.yaml      declarative spec used by lesson 11
+examples/         runnable .py files (02-12); 01 is reference-only
+  agent.yaml      declarative spec used by Lesson 12
   _common.py      shared model strings + .env loader
-lessons/          one-page markdown lesson per example
-  00-orientation.md   start here
+lessons/
+  00-orientation.md      curriculum map, study workflow
+  01-agent-api-tour.md   reference tour of the Agent surface
+  02-..12-..             paired with the example of the same number
 ```
 
 ## Lesson index
 
 | # | Example | Concept |
 |---|---------|---------|
-| 01 | `01_hello_agent.py` | `Agent`, `run_sync`, plain output |
-| 02 | `02_structured_output.py` | `output_type=PydanticModel` |
-| 03 | `03_simple_tools.py` | `@agent.tool_plain` |
-| 04 | `04_deps_injection.py` | `deps_type`, `RunContext`, `@agent.tool` |
-| 05 | `05_dynamic_instructions.py` | `@agent.instructions` |
-| 06 | `06_streaming.py` | `run_stream`, `stream_text(delta=True)` |
-| 07 | `07_capabilities.py` | `Thinking`, native `WebSearch` |
-| 08 | `08_message_history.py` | `message_history=` for multi-turn |
-| 09 | `09_testing.py` | `TestModel`, `FunctionModel`, `agent.override()` |
-| 10 | `10_multi_agent.py` | Parent agent delegates via a tool |
-| 11 | `11_yaml_agent_with_hooks.py` | `Agent.from_file`, `Hooks` |
+| 01 | *(reference)* | Tour of `Agent`'s public API |
+| 02 | `02_hello_agent.py` | `Agent`, `run_sync`, plain output |
+| 03 | `03_structured_output.py` | `output_type=PydanticModel` |
+| 04 | `04_simple_tools.py` | `@agent.tool_plain` |
+| 05 | `05_deps_injection.py` | `deps_type`, `RunContext`, `@agent.tool` |
+| 06 | `06_dynamic_instructions.py` | `@agent.instructions` |
+| 07 | `07_streaming.py` | `run_stream`, `stream_text(delta=True)` |
+| 08 | `08_capabilities.py` | `Thinking`, native `WebSearch` |
+| 09 | `09_message_history.py` | `message_history=` for multi-turn |
+| 10 | `10_testing.py` | `TestModel`, `FunctionModel`, `agent.override()` |
+| 11 | `11_multi_agent.py` | Parent agent delegates via a tool |
+| 12 | `12_yaml_agent_with_hooks.py` | `Agent.from_file`, `Hooks` |
 
-Run tests with `uv run pytest examples/09_testing.py -v`.
+Run tests with `uv run pytest examples/10_testing.py -v`.
 
 ## Notes
 

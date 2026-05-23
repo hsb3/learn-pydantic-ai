@@ -1,6 +1,6 @@
-# Lesson 04 — Dependency injection
+# Lesson 05 — Dependency injection
 
-**Code:** `examples/04_deps_injection.py`
+**Code:** `examples/05_deps_injection.py`
 
 ## Goal
 Pass typed state (DBs, clients, user info) into tools using `deps_type` + `RunContext`.
@@ -16,14 +16,14 @@ Two changes from lesson 03:
 Same agent, different deps per call. Same loop as before; only the tool signature changes.
 
 ## Walk the code
-- `examples/04_deps_injection.py:24` — `CustomerDB` is just a dataclass standing in for a real client. The type matters; the implementation doesn't.
-- `examples/04_deps_injection.py:34` — `Agent[CustomerDB, str](FLASH, deps_type=CustomerDB, ...)`. The generic and the runtime `deps_type=` say the same thing; together they give you static + runtime safety.
-- `examples/04_deps_injection.py:44` — `@agent.tool` (not `tool_plain`). First param is `ctx: RunContext[CustomerDB]`.
-- `examples/04_deps_injection.py:70` — `agent.run_sync(..., deps=db)` is where the dependency actually arrives.
+- `examples/05_deps_injection.py:24` — `CustomerDB` is just a dataclass standing in for a real client. The type matters; the implementation doesn't.
+- `examples/05_deps_injection.py:34` — `Agent[CustomerDB, str](FLASH, deps_type=CustomerDB, ...)`. The generic and the runtime `deps_type=` say the same thing; together they give you static + runtime safety.
+- `examples/05_deps_injection.py:44` — `@agent.tool` (not `tool_plain`). First param is `ctx: RunContext[CustomerDB]`.
+- `examples/05_deps_injection.py:70` — `agent.run_sync(..., deps=db)` is where the dependency actually arrives.
 
 ## Run
 ```bash
-uv run python examples/04_deps_injection.py
+uv run python examples/05_deps_injection.py
 ```
 Expected: a friendly one-line answer mentioning Ada Lovelace and $123.45.
 
@@ -38,4 +38,4 @@ Expected: a friendly one-line answer mentioning Ada Lovelace and $123.45.
 - **One deps instance per run.** If you mutate it inside a tool, that's visible to later tools in the same run — sometimes useful, often a footgun.
 
 ## Bridge
-Static system prompts plus deps cover most cases. Lesson 05 lets the system prompt itself be dynamic.
+Static system prompts plus deps cover most cases. Lesson 06 lets the system prompt itself be dynamic.

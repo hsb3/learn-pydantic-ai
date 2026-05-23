@@ -1,4 +1,4 @@
-"""06 — Streaming output.
+"""07 — Streaming output.
 
 Up to now we've called `run_sync()` and waited for the full result. For
 chat UIs and long-running responses you want tokens as soon as the model

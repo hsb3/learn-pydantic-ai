@@ -1,6 +1,6 @@
-# Lesson 01 — Hello agent
+# Lesson 02 — Hello agent
 
-**Code:** `examples/01_hello_agent.py`
+**Code:** `examples/02_hello_agent.py`
 
 ## Goal
 Construct the smallest possible Pydantic AI program: pick a model, build an `Agent`, call it, read the result.
@@ -13,13 +13,13 @@ An **Agent** is a configured caller around an LLM. You hand it a model and instr
 
 ## Walk the code
 - `examples/_common.py:11` — `FLASH = "google:gemini-3-flash-preview"`. Model strings are always `"provider:model-name"`. Without the provider prefix, pydantic-ai can't resolve the model.
-- `examples/01_hello_agent.py:16` — `Agent(FLASH, instructions=...)`. `instructions` is the system prompt.
-- `examples/01_hello_agent.py:23` — `agent.run_sync(prompt)` blocks until the model answers; `result.output` is a plain `str` because no `output_type` was set.
-- `examples/01_hello_agent.py:26` — `result.usage` shows token counts. Gemini's `thoughts_tokens` are internal reasoning tokens you pay for but never see.
+- `examples/02_hello_agent.py:16` — `Agent(FLASH, instructions=...)`. `instructions` is the system prompt.
+- `examples/02_hello_agent.py:23` — `agent.run_sync(prompt)` blocks until the model answers; `result.output` is a plain `str` because no `output_type` was set.
+- `examples/02_hello_agent.py:26` — `result.usage` shows token counts. Gemini's `thoughts_tokens` are internal reasoning tokens you pay for but never see.
 
 ## Run
 ```bash
-uv run python examples/01_hello_agent.py
+uv run python examples/02_hello_agent.py
 ```
 Expected: one sentence about "hello world", then a `RunUsage(...)` summary.
 
@@ -33,4 +33,4 @@ Expected: one sentence about "hello world", then a `RunUsage(...)` summary.
 - **`result.output` is the only thing typed as `str` by default.** Once you set `output_type=`, this becomes whatever Pydantic model you ask for (lesson 02).
 
 ## Bridge
-Plain strings are brittle. Lesson 02 forces the model to return a validated Pydantic object instead.
+Plain strings are brittle. Lesson 03 forces the model to return a validated Pydantic object instead.

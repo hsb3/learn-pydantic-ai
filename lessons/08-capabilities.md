@@ -1,6 +1,6 @@
-# Lesson 07 — Capabilities (Thinking, WebSearch)
+# Lesson 08 — Capabilities (Thinking, WebSearch)
 
-**Code:** `examples/07_capabilities.py`
+**Code:** `examples/08_capabilities.py`
 
 ## Goal
 Compose reusable behavior bundles onto an agent — `Thinking` for extended reasoning, `WebSearch` for grounded answers — using `capabilities=[...]`.
@@ -18,13 +18,13 @@ Agent(MODEL, capabilities=[Thinking(effort="medium"), WebSearch()])
 `Thinking` doesn't add a tool you call; it changes the provider request to allocate reasoning budget. `WebSearch` registers the provider's *native* search tool — no Python search code, no API key juggling. The model decides when to use it.
 
 ## Walk the code
-- `examples/07_capabilities.py:27` — `PRO` (gemini-3-pro-preview). Heavier-weight model for reasoning + tool use.
-- `examples/07_capabilities.py:32–36` — `capabilities=[Thinking(effort="medium"), WebSearch()]`.
-- `examples/07_capabilities.py:48` — Loop over `result.all_messages()` looking for `NativeToolCallPart`. **Native** capabilities use this part class, not the `ToolCallPart` used for your custom function tools.
+- `examples/08_capabilities.py:27` — `PRO` (gemini-3-pro-preview). Heavier-weight model for reasoning + tool use.
+- `examples/08_capabilities.py:32–36` — `capabilities=[Thinking(effort="medium"), WebSearch()]`.
+- `examples/08_capabilities.py:48` — Loop over `result.all_messages()` looking for `NativeToolCallPart`. **Native** capabilities use this part class, not the `ToolCallPart` used for your custom function tools.
 
 ## Run
 ```bash
-uv run python examples/07_capabilities.py
+uv run python examples/08_capabilities.py
 ```
 Expected: a paragraph about a recent F1 race, with a source URL, and a `web_search → {'queries': [...]}` line showing the model actually searched.
 
@@ -39,4 +39,4 @@ Expected: a paragraph about a recent F1 race, with a source URL, and a `web_sear
 - **Thinking costs real tokens.** `thoughts_tokens` in `RunUsage` are billed even though you never see them in the output.
 
 ## Bridge
-You can drive one rich run. Lesson 08 chains *many* runs into a conversation by passing message history forward.
+You can drive one rich run. Lesson 09 chains *many* runs into a conversation by passing message history forward.

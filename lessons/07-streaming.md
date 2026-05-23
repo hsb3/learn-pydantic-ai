@@ -1,6 +1,6 @@
-# Lesson 06 — Streaming
+# Lesson 07 — Streaming
 
-**Code:** `examples/06_streaming.py`
+**Code:** `examples/07_streaming.py`
 
 ## Goal
 Receive output incrementally as the model produces it, instead of waiting for the full answer.
@@ -17,13 +17,13 @@ Long responses can take 5–30 seconds. A chat UI that shows nothing until compl
 Streaming makes the call async — so a CLI entry point uses `asyncio.run(main())`.
 
 ## Walk the code
-- `examples/06_streaming.py:33` — `async with agent.run_stream(...) as stream:`. The context manager guarantees the underlying provider stream is closed even on error.
-- `examples/06_streaming.py:34` — `async for delta in stream.stream_text(delta=True):`. With `delta=True` you get the *new* tokens each step; without it, you get the full accumulated text each step.
-- `examples/06_streaming.py:40` — `stream.usage` (no parens — it's a property in pydantic-ai 1.x).
+- `examples/07_streaming.py:33` — `async with agent.run_stream(...) as stream:`. The context manager guarantees the underlying provider stream is closed even on error.
+- `examples/07_streaming.py:34` — `async for delta in stream.stream_text(delta=True):`. With `delta=True` you get the *new* tokens each step; without it, you get the full accumulated text each step.
+- `examples/07_streaming.py:40` — `stream.usage` (no parens — it's a property in pydantic-ai 1.x).
 
 ## Run
 ```bash
-uv run python examples/06_streaming.py
+uv run python examples/07_streaming.py
 ```
 Expected: a vivid seascape description appearing chunk-by-chunk, then a `RunUsage(...)` line.
 
@@ -38,4 +38,4 @@ Expected: a vivid seascape description appearing chunk-by-chunk, then a `RunUsag
 - **Streaming + structured output need `stream_output()`**, not `stream_text()` — text streaming on a structured-output agent gives you the raw JSON being built, which isn't usually what you want.
 
 ## Bridge
-You've controlled inputs and outputs. Lesson 07 unlocks provider-native superpowers — thinking and web search — without writing a single tool yourself.
+You've controlled inputs and outputs. Lesson 08 unlocks provider-native superpowers — thinking and web search — without writing a single tool yourself.

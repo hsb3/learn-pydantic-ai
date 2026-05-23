@@ -1,4 +1,4 @@
-"""03 — Stateless tools (`@agent.tool_plain`).
+"""04 — Stateless tools (`@agent.tool_plain`).
 
 Tools let the model call your Python functions to fetch information or
 perform actions. The model decides when to call them based on the docstring

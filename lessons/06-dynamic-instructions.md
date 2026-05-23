@@ -1,6 +1,6 @@
-# Lesson 05 — Dynamic instructions
+# Lesson 06 — Dynamic instructions
 
-**Code:** `examples/05_dynamic_instructions.py`
+**Code:** `examples/06_dynamic_instructions.py`
 
 ## Goal
 Make the system prompt itself respond to runtime data — current date, user identity, feature flags — using `@agent.instructions`.
@@ -18,14 +18,14 @@ Three kinds of instruction sources, evaluated and concatenated on every run:
 All three end up in the system prompt before the user message goes to the model.
 
 ## Walk the code
-- `examples/05_dynamic_instructions.py:31` — Static instructions on the Agent (inside the `Agent[...]` constructor).
-- `examples/05_dynamic_instructions.py:35` — `@agent.instructions` with a `RunContext[User]` — reads `ctx.deps.name`.
-- `examples/05_dynamic_instructions.py:45` — `@agent.instructions` with no params — for facts that don't depend on deps (today's date).
-- `examples/05_dynamic_instructions.py:52` — The same agent, different deps → different prompt → different language out.
+- `examples/06_dynamic_instructions.py:31` — Static instructions on the Agent (inside the `Agent[...]` constructor).
+- `examples/06_dynamic_instructions.py:35` — `@agent.instructions` with a `RunContext[User]` — reads `ctx.deps.name`.
+- `examples/06_dynamic_instructions.py:45` — `@agent.instructions` with no params — for facts that don't depend on deps (today's date).
+- `examples/06_dynamic_instructions.py:52` — The same agent, different deps → different prompt → different language out.
 
 ## Run
 ```bash
-uv run python examples/05_dynamic_instructions.py
+uv run python examples/06_dynamic_instructions.py
 ```
 Expected: an English reply for Henry, a Spanish reply for Lucía — same agent.
 
@@ -40,4 +40,4 @@ Expected: an English reply for Henry, a Spanish reply for Lucía — same agent.
 - **Per-request cost.** Every decorated function runs on every request. Heavy work belongs in a tool that the model calls when needed, not in `@agent.instructions`.
 
 ## Bridge
-You now have full control of inputs to the model. Lesson 06 changes how you consume *outputs* — token-by-token streaming instead of waiting for the full answer.
+You now have full control of inputs to the model. Lesson 07 changes how you consume *outputs* — token-by-token streaming instead of waiting for the full answer.

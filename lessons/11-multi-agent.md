@@ -1,6 +1,6 @@
-# Lesson 10 — Multi-agent delegation
+# Lesson 11 — Multi-agent delegation
 
-**Code:** `examples/10_multi_agent.py`
+**Code:** `examples/11_multi_agent.py`
 
 ## Goal
 Compose two agents — a parent that orchestrates, a child specialist it calls via a tool — with combined token-usage accounting.
@@ -14,14 +14,14 @@ A child agent is just another callable from the parent's perspective. You expose
 Critical detail: pass `usage=ctx.usage` when delegating so the parent's `RunUsage` accumulates the child's tokens too. Without it, you can't see what the inner run cost.
 
 ## Walk the code
-- `examples/10_multi_agent.py:33` — `outliner` has its own `output_type=Outline` and focused instructions. Could be a different model.
-- `examples/10_multi_agent.py:43` — `writer` is the parent. Its instructions explicitly say "call `make_outline` first."
-- `examples/10_multi_agent.py:53` — `@writer.tool` wraps the child call. The tool's docstring is what the parent's model reads to know when to call it.
-- `examples/10_multi_agent.py:57` — `await outliner.run(topic, usage=ctx.usage)` — `usage=ctx.usage` rolls child tokens into parent totals.
+- `examples/11_multi_agent.py:33` — `outliner` has its own `output_type=Outline` and focused instructions. Could be a different model.
+- `examples/11_multi_agent.py:43` — `writer` is the parent. Its instructions explicitly say "call `make_outline` first."
+- `examples/11_multi_agent.py:53` — `@writer.tool` wraps the child call. The tool's docstring is what the parent's model reads to know when to call it.
+- `examples/11_multi_agent.py:57` — `await outliner.run(topic, usage=ctx.usage)` — `usage=ctx.usage` rolls child tokens into parent totals.
 
 ## Run
 ```bash
-uv run python examples/10_multi_agent.py
+uv run python examples/11_multi_agent.py
 ```
 Expected: a 3-paragraph blog post, followed by a `RunUsage(... requests=3, tool_calls=1)` line (one parent request, one tool call into the child, one final parent request).
 
@@ -36,4 +36,4 @@ Expected: a 3-paragraph blog post, followed by a `RunUsage(... requests=3, tool_
 - **Each child run is a fresh conversation.** Children don't inherit the parent's message history unless you pass `message_history=` explicitly.
 
 ## Bridge
-You've built and composed agents in Python. Lesson 11 moves the configuration out of Python entirely — into YAML — and adds lifecycle hooks for observability.
+You've built and composed agents in Python. Lesson 12 moves the configuration out of Python entirely — into YAML — and adds lifecycle hooks for observability.

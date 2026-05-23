@@ -1,4 +1,4 @@
-"""04 — Dependency injection (`@agent.tool` + `deps_type`).
+"""05 — Dependency injection (`@agent.tool` + `deps_type`).
 
 `tool_plain` is great for stateless tools. Real applications need to pass
 state: a DB connection, an HTTP client, a user ID, a request-scoped config.

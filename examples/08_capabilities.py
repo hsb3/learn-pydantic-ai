@@ -1,4 +1,4 @@
-"""07 — Capabilities (Thinking, WebSearch).
+"""08 — Capabilities (Thinking, WebSearch).
 
 Capabilities are reusable, composable bundles of agent behaviour. They
 attach to an agent via `capabilities=[...]`. The two most common:

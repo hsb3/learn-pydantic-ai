@@ -1,6 +1,6 @@
-# Lesson 03 — Simple tools
+# Lesson 04 — Simple tools
 
-**Code:** `examples/03_simple_tools.py`
+**Code:** `examples/04_simple_tools.py`
 
 ## Goal
 Let the model call your Python functions mid-run, using `@agent.tool_plain` for stateless tools.
@@ -14,13 +14,13 @@ A run is a *loop*: the model can answer, **or** it can call one of your tools. I
 `@agent.tool_plain` is for tools that need nothing from the run — pure functions. The docstring + parameter types become the tool's schema, which the model reads to decide *when* to call it.
 
 ## Walk the code
-- `examples/03_simple_tools.py:32` — `@agent.tool_plain` decorator. No `RunContext` param.
-- `examples/03_simple_tools.py:34` — Docstring `"""Roll a six-sided die. Returns an integer 1-6."""`. The model reads this; write it like prompt copy, not implementation notes.
-- `examples/03_simple_tools.py:51` — The transcript loop prints each part: `ModelRequest user` → `ModelResponse call` → `ModelRequest return` → `ModelResponse text`. This is the agent loop made visible.
+- `examples/04_simple_tools.py:32` — `@agent.tool_plain` decorator. No `RunContext` param.
+- `examples/04_simple_tools.py:34` — Docstring `"""Roll a six-sided die. Returns an integer 1-6."""`. The model reads this; write it like prompt copy, not implementation notes.
+- `examples/04_simple_tools.py:51` — The transcript loop prints each part: `ModelRequest user` → `ModelResponse call` → `ModelRequest return` → `ModelResponse text`. This is the agent loop made visible.
 
 ## Run
 ```bash
-uv run python examples/03_simple_tools.py
+uv run python examples/04_simple_tools.py
 ```
 Expected output ends with a sentence about whether you won, plus a transcript showing both tools were called.
 
@@ -35,4 +35,4 @@ Expected output ends with a sentence about whether you won, plus a transcript sh
 - **Tools can raise.** An uncaught exception ends the run. To let the model retry, raise `ModelRetry("hint for the model")` instead.
 
 ## Bridge
-Stateless tools are pure functions. Real apps need to pass DB connections, user IDs, config. Lesson 04 adds typed dependency injection.
+Stateless tools are pure functions. Real apps need to pass DB connections, user IDs, config. Lesson 05 adds typed dependency injection.

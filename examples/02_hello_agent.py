@@ -1,4 +1,4 @@
-"""01 — Hello agent.
+"""02 — Hello agent.
 
 The smallest useful Pydantic AI program:
 - pick a model with a `"provider:model"` string

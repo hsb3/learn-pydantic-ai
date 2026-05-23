@@ -1,4 +1,4 @@
-"""10 — Multi-agent delegation.
+"""11 — Multi-agent delegation.
 
 The simplest multi-agent pattern: one agent's tool calls another agent and
 returns the inner result. The parent stays in charge; the child is a

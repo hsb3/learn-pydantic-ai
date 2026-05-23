@@ -1,6 +1,6 @@
-# Lesson 11 — YAML specs + lifecycle hooks
+# Lesson 12 — YAML specs + lifecycle hooks
 
-**Code:** `examples/11_yaml_agent_with_hooks.py`, `examples/agent.yaml`
+**Code:** `examples/12_yaml_agent_with_hooks.py`, `examples/agent.yaml`
 
 ## Goal
 Load an agent's configuration from YAML (template strings, capabilities, model) and attach `Hooks` for lifecycle observability.
@@ -17,14 +17,14 @@ Load an agent's configuration from YAML (template strings, capabilities, model) 
 
 ## Walk the code
 - `examples/agent.yaml` — model, instructions with `{{ user_name }}` and `{{ today }}` template variables, a Thinking capability declared declaratively.
-- `examples/11_yaml_agent_with_hooks.py:41` — `Hooks()` instance.
-- `examples/11_yaml_agent_with_hooks.py:44` — `@hooks.on.before_model_request` decorator. The handler receives `RunContext[DepsT]` and a mutable `ModelRequestContext`, can transform or short-circuit the request, and must return the (possibly modified) context.
-- `examples/11_yaml_agent_with_hooks.py:53` — `@hooks.on.run_error` — fires on uncaught exceptions in the run.
-- `examples/11_yaml_agent_with_hooks.py:59` — `Agent.from_file(..., deps_type=UserContext, capabilities=[hooks])`. YAML capabilities + Python `Hooks` capability are merged.
+- `examples/12_yaml_agent_with_hooks.py:41` — `Hooks()` instance.
+- `examples/12_yaml_agent_with_hooks.py:44` — `@hooks.on.before_model_request` decorator. The handler receives `RunContext[DepsT]` and a mutable `ModelRequestContext`, can transform or short-circuit the request, and must return the (possibly modified) context.
+- `examples/12_yaml_agent_with_hooks.py:53` — `@hooks.on.run_error` — fires on uncaught exceptions in the run.
+- `examples/12_yaml_agent_with_hooks.py:59` — `Agent.from_file(..., deps_type=UserContext, capabilities=[hooks])`. YAML capabilities + Python `Hooks` capability are merged.
 
 ## Run
 ```bash
-uv run python examples/11_yaml_agent_with_hooks.py
+uv run python examples/12_yaml_agent_with_hooks.py
 ```
 Expected: `[hook] sending 1 messages to model`, a `---`, then a one-paragraph reply addressing the user by name.
 

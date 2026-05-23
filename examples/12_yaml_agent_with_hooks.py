@@ -1,4 +1,4 @@
-"""11 — Agents from YAML + lifecycle hooks.
+"""12 — Agents from YAML + lifecycle hooks.
 
 Two production-grade conveniences:
 
