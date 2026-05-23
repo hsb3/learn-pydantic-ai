@@ -2,7 +2,7 @@
 # Run `make` or `make help` to see what's available.
 
 .DEFAULT_GOAL := help
-.PHONY: help install nb-sync nb-exec nb-clear nb-roundtrip repl repl-prompt repl-claude repl-claude-web test test-all test-lessons test-clai test-live clean
+.PHONY: help install nb-sync nb-exec nb-clear nb-roundtrip repl repl-prompt repl-claude repl-claude-web test test-all test-lessons test-clai test-live dump-models clean
 
 # ── auto-discover jupytext-paired notebooks (those with a jupytext header) ──
 PAIRED_NB_PY := $(shell grep -l 'formats: ipynb' examples/*.py 2>/dev/null)
@@ -84,6 +84,10 @@ test-clai:  ## Live smoke test — both YAML-defined clai agents incl. Anthropic
 	uv run pytest tests/test_clai_agents.py -v
 
 test-live: test-lessons test-clai  ## Run every live test (lessons + clai agents)
+
+# ── model lookup ───────────────────────────────────────────────────────────
+dump-models:  ## Regenerate data/models.json (lookup table of valid provider:model strings)
+	uv run python scripts/dump_models.py
 
 # ── housekeeping ───────────────────────────────────────────────────────────
 clean:  ## Remove caches and build cruft
