@@ -15,11 +15,18 @@ A self-paced curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent fr
 ```bash
 make install                                  # uv sync
 cp .env.example .env                          # add your GOOGLE_API_KEY
+lefthook install                              # one-time: wire the pre-push test gate
 make lesson-02                                # run any lesson by number
 make repl                                     # drop into a chat REPL with cli_agent.yaml
 ```
 
 Get a Gemini API key at <https://aistudio.google.com/apikey>. Run `make help` for the full task list.
+
+The pre-push hook runs `make test-live` (~2 min, every lesson + both clai agents hit real APIs). Bypass options:
+
+- `git push --no-verify` — skip all hooks
+- `LEFTHOOK_EXCLUDE=test-live git push` — skip just this hook
+- `LEFTHOOK=0 git push` — disable lefthook entirely for one push
 
 ## How to use this
 

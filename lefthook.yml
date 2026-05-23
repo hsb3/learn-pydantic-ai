@@ -1,0 +1,13 @@
+# Git hooks for learn-pydantic-ai.
+# Install once after cloning:  lefthook install
+# Skip temporarily:            git push --no-verify
+# Skip just this hook:         LEFTHOOK_EXCLUDE=test-live git push
+
+pre-push:
+  parallel: false
+  commands:
+    test-live:
+      # Runs every lesson + both clai agents against real APIs (~2 min, costs cents).
+      # Tagged so it can be skipped individually without --no-verify.
+      tags: live network slow
+      run: make test-live
