@@ -4,7 +4,7 @@ A short tour of how this curriculum is laid out and how to study it.
 
 ## The arc
 
-The 12 lessons are grouped into four phases. Each phase has its own payoff — you can stop after any phase and have something useful.
+The 13 lessons are grouped into five phases. Each phase has its own payoff — you can stop after any phase and have something useful.
 
 | Phase | Lessons | What you'll be able to do |
 |-------|---------|---------------------------|
@@ -13,6 +13,7 @@ The 12 lessons are grouped into four phases. Each phase has its own payoff — y
 | **2 — Tools & state** | 04, 05, 06 | Give an agent abilities (tools), runtime context (deps), and dynamic prompts. |
 | **3 — Production runtime** | 07, 08, 09 | Stream tokens, plug in native capabilities (search, thinking), hold a multi-turn conversation. |
 | **4 — Engineering** | 10, 11, 12 | Write deterministic tests, delegate between agents, drive agents from YAML with lifecycle hooks. |
+| **5 — Putting it together** | 13 | Wire a YAML-defined agent into the `clai` REPL; `make repl` becomes your daily-use loop. |
 
 ## How to study each lesson
 

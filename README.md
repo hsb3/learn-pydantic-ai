@@ -1,12 +1,13 @@
 # Learn Pydantic AI
 
-A self-paced curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent framework. Eleven runnable examples + a matching one-page lesson, plus an API-tour reference lesson up front.
+A self-paced curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent framework. Twelve runnable examples + a matching one-page lesson, plus an API-tour reference lesson up front and a CLI-REPL capstone at the end.
 
 ## Key features
 
-- **12 progressive lessons** — an API tour first, then 11 examples that introduce one concept each
+- **13 progressive lessons** — an API tour first, 11 examples introducing one concept each, then a CLI capstone
 - **One-page lessons** in `lessons/` — mental model, code walkthrough, "try it" prompts, gotchas
 - **Google Gemini throughout** — single provider, single API key
+- **Makefile shortcuts** — `make lesson-NN`, `make repl`, `make nb-sync`, etc. (`make help` for the full list)
 - **Real tests** — Lesson 10 ships `TestModel` + `FunctionModel` examples that pass under `pytest`
 
 ## Quick start
@@ -14,7 +15,8 @@ A self-paced curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent fr
 ```bash
 make install                                  # uv sync
 cp .env.example .env                          # add your GOOGLE_API_KEY
-uv run python examples/02_hello_agent.py
+make lesson-02                                # run any lesson by number
+make repl                                     # drop into a chat REPL with cli_agent.yaml
 ```
 
 Get a Gemini API key at <https://aistudio.google.com/apikey>. Run `make help` for the full task list.
@@ -67,8 +69,11 @@ Open the `.ipynb` in VS Code's Jupyter extension or with `jupyter lab` (lab not 
 | 10 | `10_testing.py` | `TestModel`, `FunctionModel`, `agent.override()` |
 | 11 | `11_multi_agent.py` | Parent agent delegates via a tool |
 | 12 | `12_yaml_agent_with_hooks.py` | `Agent.from_file`, `Hooks` |
+| 13 | `13_clai_agent_repl.py` (notebook) + `cli_agent.yaml` | Plug a YAML agent into `clai`; `make repl` |
 
-Run tests with `make test`.
+Appendix: [`lessons/runtimes.md`](lessons/runtimes.md) — `clai`, `Agent.to_web/to_a2a/to_ag_ui`, and a Temporal teaser.
+
+Run tests with `make test`. Run any individual lesson with `make lesson-NN`.
 
 ## Notes
 
