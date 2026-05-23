@@ -51,3 +51,7 @@ Everything except testing/production patterns | Lesson 10
 - **Hook** — a decorator-registered callback into the agent loop (before model request, before tool execute, on error…).
 
 Start with [Lesson 01 — Agent API tour](./01-agent-api-tour.md).
+
+## Appendix
+
+- [`runtimes.md`](./runtimes.md) — identity (`clai`, `Agent.to_web/to_cli/to_a2a/to_ag_ui`) and a teaser on durable agents with Temporal. Read after Lesson 12 when you're thinking about hosting or crash-safety.
