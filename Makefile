@@ -2,7 +2,7 @@
 # Run `make` or `make help` to see what's available.
 
 .DEFAULT_GOAL := help
-.PHONY: help install nb-sync nb-exec nb-clear nb-roundtrip repl repl-prompt repl-claude repl-claude-web test test-all clean
+.PHONY: help install nb-sync nb-exec nb-clear nb-roundtrip repl repl-prompt repl-claude repl-claude-web test test-all test-lessons test-clai test-live clean
 
 # ── auto-discover jupytext-paired notebooks (those with a jupytext header) ──
 PAIRED_NB_PY := $(shell grep -l 'formats: ipynb' examples/*.py 2>/dev/null)
@@ -76,6 +76,14 @@ test:  ## Run the Lesson 10 test file
 
 test-all:  ## Discover and run every test under examples/
 	uv run pytest examples/ -v
+
+test-lessons:  ## Live smoke test — runs `make lesson-NN` for every lesson (hits real APIs, costs money)
+	uv run pytest tests/test_lessons.py -v
+
+test-clai:  ## Live smoke test — both YAML-defined clai agents incl. Anthropic native tools
+	uv run pytest tests/test_clai_agents.py -v
+
+test-live: test-lessons test-clai  ## Run every live test (lessons + clai agents)
 
 # ── housekeeping ───────────────────────────────────────────────────────────
 clean:  ## Remove caches and build cruft
