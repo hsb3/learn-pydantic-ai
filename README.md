@@ -12,12 +12,12 @@ A self-paced curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent fr
 ## Quick start
 
 ```bash
-uv sync                                       # install deps
+make install                                  # uv sync
 cp .env.example .env                          # add your GOOGLE_API_KEY
 uv run python examples/02_hello_agent.py
 ```
 
-Get a Gemini API key at <https://aistudio.google.com/apikey>.
+Get a Gemini API key at <https://aistudio.google.com/apikey>. Run `make help` for the full task list.
 
 ## How to use this
 
@@ -40,12 +40,16 @@ lessons/
   02-..12-..              paired with the example of the same number
 ```
 
-The Lesson 01 notebook uses top-level `await` (canonical in Jupyter / VS Code interactive). Open it in VS Code's Python extension (cells are auto-detected from `# %%`) or:
+The Lesson 01 notebook uses top-level `await` (canonical in Jupyter / VS Code interactive). The `.py` and `.ipynb` are paired via jupytext — edit either, then keep them in sync:
 
 ```bash
-uv run --with jupytext jupytext --to ipynb examples/01_agent_api_tour.py
-uv run --with jupyterlab jupyter lab examples/01_agent_api_tour.ipynb
+make nb-sync          # whichever file is newer wins
+make nb-exec          # run the notebook end-to-end as a smoke test
+make nb-clear         # strip cell outputs before committing
+make nb-roundtrip     # sync + exec + clear, all at once
 ```
+
+Open the `.ipynb` in VS Code's Jupyter extension or with `jupyter lab` (lab not bundled — install with `uv add --dev jupyterlab` if you want it).
 
 ## Lesson index
 
@@ -64,7 +68,7 @@ uv run --with jupyterlab jupyter lab examples/01_agent_api_tour.ipynb
 | 11 | `11_multi_agent.py` | Parent agent delegates via a tool |
 | 12 | `12_yaml_agent_with_hooks.py` | `Agent.from_file`, `Hooks` |
 
-Run tests with `uv run pytest examples/10_testing.py -v`.
+Run tests with `make test`.
 
 ## Notes
 

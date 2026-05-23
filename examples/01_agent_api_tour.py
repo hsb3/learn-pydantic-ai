@@ -1,3 +1,20 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.3
+#   kernelspec:
+#     display_name: learn-pydantic-ai (3.13.13)
+#     language: python
+#     name: python3
+# ---
+
+# %%
 """Lesson 01 companion — runnable tour of the Agent API.
 
 Open in VS Code (Python extension recognises `# %%` cells) or convert to
@@ -17,16 +34,7 @@ examples (02-12) use `run_sync` because they're scripts.
 # look at the output, change something, run it again.
 
 # %%
-# Setup. `load_dotenv()` walks up the directory tree looking for `.env`.
-from __future__ import annotations
-
-from dataclasses import dataclass
-from dotenv import load_dotenv
-
-load_dotenv()
-
-FLASH = "google:gemini-3-flash-preview"
-PRO = "google:gemini-3-pro-preview"
+from _common import FLASH
 
 # %% [markdown]
 # ## 1. The Agent constructor
@@ -36,7 +44,10 @@ PRO = "google:gemini-3-pro-preview"
 # %%
 from pydantic_ai import Agent
 
-agent = Agent(FLASH, instructions="Reply in one short sentence.")
+agent: Agent[None, str] = Agent(
+    model=FLASH, name="agent-01", instructions="Reply in one short sentence."
+)
+
 agent
 
 # %%
@@ -59,12 +70,14 @@ print(public)
 # and clashes with Jupyter's already-running event loop.
 
 # %%
-result = await agent.run("What is 2 + 2?")
+from pydantic_ai.run import AgentRunResult
+
+result: AgentRunResult[str] = await agent.run(user_prompt="What is 2 + 2?")
 print(result.output)
 
 # %%
 # Same answer via the async API. In a script you'd write `agent.run_sync(...)`.
-result = await agent.run("Name a small mammal.")
+result: AgentRunResult[str] = await agent.run(user_prompt="Name a small mammal.")
 print(result.output)
 
 # %% [markdown]
@@ -110,8 +123,9 @@ for msg in result.all_messages():
 # Build a fresh agent so we can attach tools.
 import random
 
-dice_agent = Agent(
-    FLASH,
+dice_agent: Agent[None, str] = Agent(
+    model=FLASH,
+    name="dice-agent",
     instructions="When asked to gamble, roll the die using your tool.",
 )
 
@@ -122,8 +136,22 @@ def roll_dice() -> int:
     return random.randint(1, 6)
 
 
-result = await dice_agent.run("Roll me a die.")
+result: AgentRunResult[str] = await dice_agent.run(user_prompt="Roll me a die.")
 print(result.output)
+
+# %%
+# number of times to roll the die
+num_rolls: int = 2
+times_rolled = 0
+result_total = 0
+
+for _ in range(num_rolls):
+    result_total += roll_dice()
+    times_rolled += 1
+
+if times_rolled > 0:
+    avg_roll = result_total / times_rolled
+    print(f"Rolled the die {times_rolled} times. Average roll: {avg_roll:.2f}")
 
 # %%
 # Inspect the loop — request → tool call → tool return → text
@@ -151,6 +179,7 @@ for msg in result.all_messages():
 # Declare the type once on the agent; pass an instance on each `run*`.
 
 # %%
+from dataclasses import dataclass
 from pydantic_ai import RunContext
 
 
