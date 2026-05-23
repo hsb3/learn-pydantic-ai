@@ -1,0 +1,30 @@
+# clai agent — Anthropic Claude Sonnet 4.6 with native tools turned on.
+#
+#   uv run --env-file .env pai --agent examples/clai_anthropic.yaml
+#   make repl-claude
+#
+# Needs ANTHROPIC_API_KEY in .env.
+
+model: anthropic:claude-sonnet-4-6
+
+instructions: |
+  You are a terse, helpful assistant. Reply in markdown.
+
+  - Reach for `code_execution` when arithmetic, data wrangling, or a short
+    Python script would help you reason. Anthropic runs the code in their
+    sandbox; you can see stdout/stderr in your final answer.
+  - Use `web_search` for facts that depend on dates, current events, or
+    specific recent information. Cite the URLs you used.
+  - Default to one short paragraph or a tight list. Show fenced code blocks
+    with a language tag.
+
+capabilities:
+  # WebSearch capability picks the provider's native search tool automatically.
+  - WebSearch
+
+  # Code execution has no dedicated capability — wrap the native tool directly.
+  # `kind` is the discriminator across native tools (web_search, code_execution,
+  # web_fetch, image_generation, x_search, …).
+  - NativeTool:
+      tool:
+        kind: code_execution

@@ -2,11 +2,12 @@
 # Run `make` or `make help` to see what's available.
 
 .DEFAULT_GOAL := help
-.PHONY: help install nb-sync nb-exec nb-clear nb-roundtrip repl repl-prompt test test-all clean
+.PHONY: help install nb-sync nb-exec nb-clear nb-roundtrip repl repl-prompt repl-claude repl-claude-web test test-all clean
 
 # ── auto-discover jupytext-paired notebooks (those with a jupytext header) ──
 PAIRED_NB_PY := $(shell grep -l 'formats: ipynb' examples/*.py 2>/dev/null)
 CLAI_AGENT   := examples/cli_agent.yaml
+CLAUDE_AGENT := examples/clai_anthropic.yaml
 
 help:  ## Show this list of targets
 	@awk 'BEGIN { FS = ":.*##"; printf "\nUsage: make <target>\n\nTargets:\n" } \
@@ -44,6 +45,15 @@ repl:  ## Start clai REPL with the project default agent (examples/cli_agent.yam
 repl-prompt:  ## One-shot: `make repl-prompt P="your question"`
 	@if [ -z "$(P)" ]; then echo "Usage: make repl-prompt P=\"your question\""; exit 1; fi
 	uv run --env-file .env pai --agent $(CLAI_AGENT) "$(P)"
+
+repl-claude:  ## clai REPL with Claude Sonnet 4.6 + native web_search + code_execution
+	uv run --env-file .env pai --agent $(CLAUDE_AGENT)
+
+repl-claude-web:  ## clai web UI with Claude Sonnet 4.6 + native tools (no YAML needed)
+	uv run --env-file .env pai web \
+	  -m anthropic:claude-sonnet-4-6 \
+	  -t web_search -t code_execution \
+	  --port 8001
 
 # ── per-lesson runner (pattern rule: `make lesson-04`) ─────────────────────
 lesson-%:
