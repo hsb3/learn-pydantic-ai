@@ -15,6 +15,44 @@ Two changes from lesson 03:
 
 Same agent, different deps per call. Same loop as before; only the tool signature changes.
 
+## Coming from LangChain / LangGraph?
+
+Pydantic AI splits what LangGraph treats as one bag into two channels:
+
+- **Construction time** — `model`, `output_type`, `deps_type`, `tools`, `capabilities`, static `instructions`. Set once. Stable. Reused for every request.
+- **Run time** — every `run*()` method takes the same set of kwargs. `deps=` is the workhorse; the rest cover overrides, accounting, and history.
+
+Per-run kwargs you can pass to `run` / `run_sync` / `run_stream*`:
+
+```python
+agent.run_sync(
+    prompt,
+    deps=...,              # main channel — typed via deps_type
+    message_history=...,   # prior conversation (Lesson 09)
+    model=...,             # one-call model override
+    model_settings=...,    # provider knobs for this call
+    usage=...,             # share token accounting (Lesson 11)
+    usage_limits=...,
+    capabilities=[...],    # additive
+    toolsets=[...],        # additive
+    metadata=...,
+    event_stream_handler=...,
+)
+```
+
+Translation table:
+
+| LangChain / LangGraph | Pydantic AI |
+|---|---|
+| `config={"configurable": {"user_id": ...}}` | `deps=MyDeps(user_id=...)` — typed dataclass enforced by `deps_type` |
+| `config={"thread_id": ...}` + checkpointer | `message_history=prior.all_messages()` |
+| `RunnableConfig.metadata` / `.tags` | `metadata=...` per-run |
+| Rebuilding the chain to swap a model | `agent.run_sync(prompt, model=other_model)` — one-call override, no rebuild |
+| `astream_events()` for progress UI | `event_stream_handler=` callback, or `run_stream_events()` |
+| `chain.with_config(...)` to bind state | `agent.override(...)` — but ONLY for test substitution / A/B swaps, not for normal dynamic context |
+
+You almost never mutate `agent.model`, `agent.instructions`, etc. — there's no supported setter pattern. Build once at module import; reuse forever.
+
 ## Walk the code
 - `examples/05_deps_injection.py:24` — `CustomerDB` is just a dataclass standing in for a real client. The type matters; the implementation doesn't.
 - `examples/05_deps_injection.py:34` — `Agent[CustomerDB, str](FLASH, deps_type=CustomerDB, ...)`. The generic and the runtime `deps_type=` say the same thing; together they give you static + runtime safety.

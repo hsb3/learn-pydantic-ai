@@ -16,11 +16,11 @@ The 12 lessons are grouped into four phases. Each phase has its own payoff — y
 
 ## How to study each lesson
 
-Each lesson is ~300 words (the tour in Lesson 01 is longer because it's reference) and pairs with one runnable file in `examples/`. The pattern that works:
+Each lesson is ~300 words (the tour in Lesson 01 is longer because it's reference) and pairs with one runnable file in `examples/`. Lesson 01's companion is a Jupyter-style notebook (`01_agent_api_tour.py` / `.ipynb`) so you can poke the API live; Lessons 02-12 ship as scripts. The pattern that works:
 
 1. **Read** the one-pager top to bottom (90 seconds; 5 minutes for the tour).
 2. **Predict** what the example will print before you run it.
-3. **Run** the example. Notice where reality matched and where it surprised you.
+3. **Run** the example. For Lesson 01 that means stepping through the notebook cells; for 02-12, `uv run python examples/NN_*.py`.
 4. **Modify** — do at least one "Try it" prompt. The friction of a small edit is where the concept sticks.
 5. **Move on** when the "Bridge" section tells you what's next.
 

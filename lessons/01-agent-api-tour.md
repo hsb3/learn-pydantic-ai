@@ -1,12 +1,17 @@
 # Lesson 01 — Agent API tour
 
-**No code file.** This lesson is a map. Read it once; the rest of the curriculum will show each piece in context. Refer back any time something looks unfamiliar.
+**Companion notebook:** `examples/01_agent_api_tour.py` — percent-style cells, open in VS Code (Python extension) or convert with `jupytext`. Poke each section as you read.
 
 ## Goal
 Get oriented in `Agent`'s public surface before you start building.
 
 ## Why this lesson exists
 You'll see the same names — `Agent(...)`, `@agent.tool`, `RunContext`, `run_stream`, `result.output` — over and over. Five minutes of pre-loading the whole surface makes every subsequent lesson land faster. You'll know which pieces are core, which are advanced, and what to ignore until you need it.
+
+## Coming from LangChain / LangGraph?
+The biggest mental shift: **the `Agent` is configured once at construction and stays stable.** Per-call dynamic context (user id, request scope, DB handles) does *not* go through "reconfigure then invoke." It flows through the run method's kwargs — primarily `deps=`, which is the typed equivalent of LangGraph's `config={"configurable": {...}}`.
+
+You almost never mutate an agent's attributes between runs. Build once at module import, reuse for every request. Lesson 05 walks through this in detail and includes a translation table.
 
 ## The `Agent` constructor
 

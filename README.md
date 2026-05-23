@@ -28,20 +28,30 @@ For each lesson: read the one-pager → run the example → try a small modifica
 ## Structure
 
 ```
-examples/         runnable .py files (02-12); 01 is reference-only
-  agent.yaml      declarative spec used by Lesson 12
-  _common.py      shared model strings + .env loader
+examples/
+  01_agent_api_tour.py    percent-style notebook for Lesson 01
+  01_agent_api_tour.ipynb same content as .ipynb (open directly in Jupyter)
+  02_hello_agent.py … 12_yaml_agent_with_hooks.py   scripts for Lessons 02-12
+  agent.yaml              declarative spec used by Lesson 12
+  _common.py              shared model strings + .env loader
 lessons/
-  00-orientation.md      curriculum map, study workflow
-  01-agent-api-tour.md   reference tour of the Agent surface
-  02-..12-..             paired with the example of the same number
+  00-orientation.md       curriculum map, study workflow
+  01-agent-api-tour.md    reference tour of the Agent surface
+  02-..12-..              paired with the example of the same number
+```
+
+The Lesson 01 notebook uses top-level `await` (canonical in Jupyter / VS Code interactive). Open it in VS Code's Python extension (cells are auto-detected from `# %%`) or:
+
+```bash
+uv run --with jupytext jupytext --to ipynb examples/01_agent_api_tour.py
+uv run --with jupyterlab jupyter lab examples/01_agent_api_tour.ipynb
 ```
 
 ## Lesson index
 
 | # | Example | Concept |
 |---|---------|---------|
-| 01 | *(reference)* | Tour of `Agent`'s public API |
+| 01 | `01_agent_api_tour.py` (notebook) | Tour of `Agent`'s public API |
 | 02 | `02_hello_agent.py` | `Agent`, `run_sync`, plain output |
 | 03 | `03_structured_output.py` | `output_type=PydanticModel` |
 | 04 | `04_simple_tools.py` | `@agent.tool_plain` |
