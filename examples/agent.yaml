@@ -1,0 +1,11 @@
+model: google:gemini-3-flash-preview
+
+# Template strings expand against `deps` at run time.
+instructions: |
+  You are a concise assistant helping {{ user_name }}.
+  Today's date is {{ today }}.
+  Reply in one short paragraph.
+
+capabilities:
+  - Thinking:
+      effort: low
