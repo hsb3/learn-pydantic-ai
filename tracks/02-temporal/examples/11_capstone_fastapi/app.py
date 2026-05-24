@@ -24,9 +24,11 @@ from temporalio.service import RPCError
 from learn_pydantic_ai import TASK_QUEUE, connect
 from schemas import (
     ApprovalPayload,
+    RejectPayload,
     ResearchHandle,
     ResearchRequest,
     ResearchStatus,
+    RevisePayload,
 )
 from workflow import CapstoneWorkflow
 
@@ -88,6 +90,34 @@ async def approve_research(
             status_code=404, detail=f"workflow not found: {workflow_id}"
         ) from e
     return {"workflow_id": workflow_id, "status": "approved"}
+
+
+@app.post("/research/{workflow_id}/revise")
+async def revise_research(workflow_id: str, payload: RevisePayload) -> dict[str, str]:
+    """Send the draft back to the writer with feedback; it returns to the gate."""
+    client = await connect()
+    handle = client.get_workflow_handle(workflow_id)
+    try:
+        await handle.signal(CapstoneWorkflow.revise, payload.feedback)
+    except RPCError as e:
+        raise HTTPException(
+            status_code=404, detail=f"workflow not found: {workflow_id}"
+        ) from e
+    return {"workflow_id": workflow_id, "status": "revision_requested"}
+
+
+@app.post("/research/{workflow_id}/reject")
+async def reject_research(workflow_id: str, payload: RejectPayload) -> dict[str, str]:
+    """Reject the draft; the workflow ends without shipping."""
+    client = await connect()
+    handle = client.get_workflow_handle(workflow_id)
+    try:
+        await handle.signal(CapstoneWorkflow.reject, payload.reason)
+    except RPCError as e:
+        raise HTTPException(
+            status_code=404, detail=f"workflow not found: {workflow_id}"
+        ) from e
+    return {"workflow_id": workflow_id, "status": "rejected"}
 
 
 @app.get("/healthz")

@@ -46,8 +46,10 @@ class CapstoneWorkflow(PydanticAIWorkflow):
     __pydantic_ai_agents__ = [clarifier, researcher, writer]
 
     def __init__(self) -> None:
-        # Lesson 07 — per-instance state for the HITL gate.
-        self._approved: bool = False
+        # Lesson 07 — per-instance state for the HITL gate. Exactly one of the
+        # review signals sets `_decision`; the run loop waits on it.
+        self._decision: str | None = None  # "approve" | "revise" | "reject"
+        self._feedback: str = ""  # revise instructions or reject reason
         self._approval_note: str = ""
         # Lesson 10 — live status / draft exposed via queries.
         self._status: str = "starting"
@@ -55,9 +57,21 @@ class CapstoneWorkflow(PydanticAIWorkflow):
 
     @workflow.signal
     def approve(self, note: str = "") -> None:
-        """Reviewer's approval. Signal handlers MUST be sync."""
+        """Approve the current draft and finish. Signal handlers MUST be sync."""
         self._approval_note = note
-        self._approved = True
+        self._decision = "approve"
+
+    @workflow.signal
+    def revise(self, feedback: str) -> None:
+        """Send the draft back to the writer with feedback, then re-review."""
+        self._feedback = feedback
+        self._decision = "revise"
+
+    @workflow.signal
+    def reject(self, reason: str = "") -> None:
+        """Reject the draft; the run ends without shipping."""
+        self._feedback = reason
+        self._decision = "reject"
 
     @workflow.query
     def status(self) -> str:
@@ -101,15 +115,36 @@ class CapstoneWorkflow(PydanticAIWorkflow):
         )
         self._draft = drafted.output
 
-        # ── Stage 5 — Lesson 07: HITL gate ─────────────────────────────────
-        self._status = "awaiting_approval"
-        workflow.logger.info("Draft ready, awaiting approval signal")
-        await workflow.wait_condition(lambda: self._approved)
+        # ── Stage 5 — Lesson 07: HITL gate, now approve / revise / reject ───
+        # A loop so "revise" can send the draft back to the writer and return
+        # to the gate. The loop exits only on approve or reject.
+        while True:
+            self._decision = None
+            self._status = "awaiting_approval"
+            workflow.logger.info("Draft ready, awaiting review decision")
+            await workflow.wait_condition(lambda: self._decision is not None)
 
-        self._status = "completed"
-        note = (
-            f"\n\n--- Reviewer note: {self._approval_note}"
-            if self._approval_note
-            else ""
-        )
-        return self._draft + note
+            if self._decision == "approve":
+                self._status = "completed"
+                note = (
+                    f"\n\n--- Reviewer note: {self._approval_note}"
+                    if self._approval_note
+                    else ""
+                )
+                return self._draft + note
+
+            if self._decision == "reject":
+                self._status = "rejected"
+                reason = f"\n\nReason: {self._feedback}" if self._feedback else ""
+                return f"REJECTED — the reviewer closed this without shipping.{reason}"
+
+            # "revise" — fold the feedback back into the writer, then re-review.
+            self._status = "revising"
+            workflow.logger.info("Revision requested: %s", self._feedback)
+            redrafted = await writer.run(
+                f"Question: {clarified.output}\nFindings: {research.output}\n\n"
+                f"Current draft:\n{self._draft}\n\n"
+                f"Revise the draft to address this reviewer feedback:\n"
+                f"{self._feedback}\n\nReturn the full revised report."
+            )
+            self._draft = redrafted.output

@@ -33,3 +33,15 @@ class ApprovalPayload(BaseModel):
     """POST /research/{id}/approve body — reviewer's optional note."""
 
     note: str = ""
+
+
+class RevisePayload(BaseModel):
+    """POST /research/{id}/revise body — feedback the writer must address."""
+
+    feedback: str
+
+
+class RejectPayload(BaseModel):
+    """POST /research/{id}/reject body — reason the run was closed."""
+
+    reason: str = ""

@@ -8,7 +8,7 @@
         test-lessons-temporal test-against-local-server \
         temporal-up temporal-down temporal-clean temporal-ui temporal-status \
         temporal-11-up temporal-11-down temporal-11-clean temporal-11-build \
-        temporal-11-logs temporal-11-api temporal-11-curl \
+        temporal-11-logs temporal-11-api temporal-11-curl temporal-11-ui \
         dump-models clean
 
 # ── auto-discover jupytext-paired notebooks across all tracks ──────────────
@@ -165,6 +165,11 @@ temporal-11-api:  ## Run JUST the FastAPI app locally (worker must be up via tem
 
 temporal-11-curl:  ## Drive the capstone end-to-end via curl (server must be up)
 	@bash $(TEMPORAL)/examples/11_capstone_fastapi/demo.sh
+
+temporal-11-ui:  ## Streamlit frontend for the capstone (worker + temporal-11-api must be up)
+	uv run --env-file .env streamlit run \
+	  $(TEMPORAL)/examples/11_capstone_fastapi/ui.py \
+	  --server.port 8501 --server.headless true
 
 # ── tests ──────────────────────────────────────────────────────────────────
 test:  ## Run the intro Lesson 10 test file (fast, mocked)
