@@ -75,4 +75,22 @@ def _validate_presets() -> None:
 _validate_presets()
 
 
-__all__ = ["MODELS", "FLASH", "PRO", "PROJECT_ROOT"]
+from learn_pydantic_ai.temporal import (  # noqa: E402
+    NAMESPACE,
+    TASK_QUEUE,
+    TEMPORAL_ADDRESS,
+    connect,
+    run_worker,
+)
+
+__all__ = [
+    "FLASH",
+    "MODELS",
+    "NAMESPACE",
+    "PRO",
+    "PROJECT_ROOT",
+    "TASK_QUEUE",
+    "TEMPORAL_ADDRESS",
+    "connect",
+    "run_worker",
+]

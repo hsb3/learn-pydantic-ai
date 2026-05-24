@@ -5,21 +5,29 @@
 .PHONY: help install nb-sync nb-exec nb-clear nb-roundtrip \
         repl repl-prompt repl-claude repl-claude-web \
         test test-all test-lessons test-clai test-live \
+        test-lessons-temporal test-against-local-server \
+        temporal-up temporal-down temporal-clean temporal-ui temporal-status \
+        temporal-11-up temporal-11-down temporal-11-clean temporal-11-build \
+        temporal-11-logs temporal-11-api temporal-11-curl \
         dump-models clean
 
 # ── auto-discover jupytext-paired notebooks across all tracks ──────────────
-PAIRED_NB_PY := $(shell grep -l 'formats: ipynb' tracks/*/examples/*.py 2>/dev/null)
+PAIRED_NB_PY := $(shell find tracks -type f -name '*.py' 2>/dev/null | xargs grep -l 'formats: ipynb' 2>/dev/null)
 INTRO        := tracks/01-intro
+TEMPORAL     := tracks/02-temporal
 CLAI_AGENT   := $(INTRO)/examples/cli_agent.yaml
 CLAUDE_AGENT := $(INTRO)/examples/clai_anthropic.yaml
+TEMPORAL_COMPOSE := docker compose -f $(TEMPORAL)/docker/docker-compose.yml
+CAPSTONE_COMPOSE := docker compose -f $(TEMPORAL)/examples/11_capstone_fastapi/docker-compose.yml
 
 help:  ## Show this list of targets
 	@awk 'BEGIN { FS = ":.*##"; printf "\nUsage: make <target>\n\nTargets:\n" } \
 	      /^[a-zA-Z_%-]+:.*##/ { printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2 }' \
 	      $(MAKEFILE_LIST)
 	@printf "\nPer-lesson runners:\n"
-	@printf "  \033[36mintro-NN\033[0m         Run an intro-track lesson, e.g. \`make intro-04\`\n"
-	@printf "  \033[36mtemporal-NN\033[0m      Run a temporal-track lesson (when added)\n\n"
+	@printf "  \033[36mintro-NN\033[0m            Run an intro-track lesson, e.g. \`make intro-04\`\n"
+	@printf "  \033[36mtemporal-NN\033[0m         Run a temporal-track lesson's starter (worker must be up)\n"
+	@printf "  \033[36mtemporal-NN-worker\033[0m  Run a temporal-track lesson's worker in the foreground\n\n"
 
 install:  ## Install / refresh all deps into .venv (also installs the local package editable)
 	uv sync
@@ -75,14 +83,88 @@ intro-%:
 		uv run python "$$file"; \
 	fi
 
-# Reserved for tracks/02-temporal/ once content lands.
-temporal-%:
-	@file=$$(ls tracks/02-temporal/examples/$**.py 2>/dev/null | head -1); \
-	if [ -z "$$file" ]; then \
-		echo "tracks/02-temporal/ — no example $* yet. See tracks/02-temporal/README.md"; exit 1; \
+# ── temporal track ─────────────────────────────────────────────────────────
+# Pattern targets:
+#   make temporal-NN-worker  -> uv run python tracks/02-temporal/examples/NN_*/worker.py
+#   make temporal-NN         -> uv run python tracks/02-temporal/examples/NN_*/example.py
+# Each lesson lives in its own subdirectory because workflows need a worker
+# AND a starter — two files minimum.
+
+temporal-%-worker:
+	@dir=$$(ls -d $(TEMPORAL)/examples/$**/ 2>/dev/null | head -1); \
+	if [ -z "$$dir" ]; then \
+		echo "$(TEMPORAL)/examples/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \
+	elif [ -f "$$dir/worker.py" ]; then \
+		uv run --env-file .env python "$$dir/worker.py"; \
 	else \
-		uv run python "$$file"; \
+		echo "$$dir has no worker.py"; exit 1; \
 	fi
+
+temporal-%:
+	@dir=$$(ls -d $(TEMPORAL)/examples/$**/ 2>/dev/null | head -1); \
+	pynb=$$(ls $(TEMPORAL)/examples/$**.py 2>/dev/null | head -1); \
+	if [ -n "$$pynb" ] && head -3 "$$pynb" 2>/dev/null | grep -q "jupyter:"; then \
+		ipynb=$${pynb%.py}.ipynb; \
+		echo "Temporal lesson $* is a paired notebook ($$ipynb)."; \
+		echo "Open in VS Code or run: make nb-exec"; \
+	elif [ -n "$$dir" ] && [ -f "$$dir/example.py" ]; then \
+		uv run --env-file .env python "$$dir/example.py"; \
+	elif [ -n "$$dir" ] && [ -f "$$dir/starter.py" ]; then \
+		uv run --env-file .env python "$$dir/starter.py"; \
+	elif [ -n "$$dir" ] && [ -f "$$dir/app.py" ]; then \
+		uv run --env-file .env uvicorn --app-dir "$$dir" app:app --port 8001 --reload; \
+	else \
+		echo "$(TEMPORAL)/examples/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \
+	fi
+
+# ── temporal: self-hosted server (docker-compose) ──────────────────────────
+temporal-up:  ## Start the self-hosted Temporal stack (postgres + server + UI)
+	$(TEMPORAL_COMPOSE) up -d
+	@echo ""
+	@echo "Temporal UI:    http://localhost:8080"
+	@echo "Frontend gRPC:  localhost:7233"
+	@echo "Namespace:      learn-pydantic-ai"
+
+temporal-down:  ## Stop the Temporal stack (keeps the postgres volume — data survives)
+	$(TEMPORAL_COMPOSE) down
+
+temporal-clean:  ## Stop AND wipe the postgres volume (fresh slate next boot)
+	$(TEMPORAL_COMPOSE) down -v
+
+temporal-ui:  ## Open the Temporal UI in your default browser
+	@open http://localhost:8080 2>/dev/null || xdg-open http://localhost:8080 2>/dev/null || echo "Open http://localhost:8080 manually"
+
+temporal-status:  ## Check the local Temporal cluster's health
+	@temporal --address localhost:7233 operator cluster health 2>/dev/null \
+	  || echo "temporal CLI cannot reach localhost:7233 — is `make temporal-up` running?"
+
+# ── lesson 10 capstone: full self-contained stack (Temporal + worker + FastAPI) ─
+temporal-11-up:  ## Bring up the capstone stack (Temporal + worker + FastAPI). Reads GOOGLE_API_KEY from your env / .env
+	@set -a; [ -f .env ] && . ./.env; set +a; $(CAPSTONE_COMPOSE) up -d --build
+	@echo ""
+	@echo "FastAPI docs:   http://localhost:8001/docs"
+	@echo "Temporal UI:    http://localhost:8080"
+	@echo "Try:            make temporal-11-curl"
+
+temporal-11-build:  ## Rebuild the capstone worker + API image (after code changes)
+	@set -a; [ -f .env ] && . ./.env; set +a; $(CAPSTONE_COMPOSE) build
+
+temporal-11-down:  ## Stop the capstone stack (keeps the postgres volume)
+	@set -a; [ -f .env ] && . ./.env; set +a; $(CAPSTONE_COMPOSE) down
+
+temporal-11-clean:  ## Stop + wipe the capstone postgres volume (fresh slate)
+	@set -a; [ -f .env ] && . ./.env; set +a; $(CAPSTONE_COMPOSE) down -v
+
+temporal-11-logs:  ## Tail logs from the capstone worker + API containers
+	@set -a; [ -f .env ] && . ./.env; set +a; $(CAPSTONE_COMPOSE) logs -f worker api
+
+temporal-11-api:  ## Run JUST the FastAPI app locally (worker must be up via temporal-11-worker)
+	uv run --env-file .env uvicorn \
+	  --app-dir $(TEMPORAL)/examples/11_capstone_fastapi app:app \
+	  --port 8001 --reload
+
+temporal-11-curl:  ## Drive the capstone end-to-end via curl (server must be up)
+	@bash $(TEMPORAL)/examples/11_capstone_fastapi/demo.sh
 
 # ── tests ──────────────────────────────────────────────────────────────────
 test:  ## Run the intro Lesson 10 test file (fast, mocked)
@@ -97,7 +179,13 @@ test-lessons:  ## Live smoke test — every intro lesson via `make intro-NN` (hi
 test-clai:  ## Live smoke test — both YAML-defined clai agents incl. Anthropic native tools
 	uv run pytest $(INTRO)/tests/test_clai_agents.py -v
 
-test-live: test-lessons test-clai  ## Every live test (lessons + clai agents)
+test-lessons-temporal:  ## Smoke test — every temporal lesson under WorkflowEnvironment.start_local()
+	uv run --env-file .env pytest $(TEMPORAL)/tests/ -v --ignore=$(TEMPORAL)/tests/test_against_local_server.py
+
+test-against-local-server:  ## Smoke test against your docker-compose server (requires `make temporal-up` first)
+	uv run --env-file .env pytest $(TEMPORAL)/tests/test_against_local_server.py -v
+
+test-live: test-lessons test-clai test-lessons-temporal  ## Every live test (intro lessons + clai + temporal lessons)
 
 # ── model lookup ───────────────────────────────────────────────────────────
 dump-models:  ## Regenerate data/models.json (lookup table of valid provider:model strings)

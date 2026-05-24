@@ -7,7 +7,7 @@ A track-based curriculum + deep-dive examples for the [Pydantic AI](https://ai.p
 | Track | Status | What it covers |
 |---|---|---|
 | [`tracks/01-intro/`](tracks/01-intro/) | ✅ Complete | 13 progressive lessons — API tour → tools → deps → streaming → capabilities → testing → multi-agent → YAML + hooks → CLI REPL capstone. The 101. |
-| [`tracks/02-temporal/`](tracks/02-temporal/) | 🚧 Scaffolded | Durable agents with Temporal — workflow + activity model, signals, retries, long-running tools. |
+| [`tracks/02-temporal/`](tracks/02-temporal/) | ✅ Complete | Durable agents with Temporal — TemporalAgent + PydanticAIWorkflow, retries, streaming, HITL signals, long-running activities, Logfire observability, multi-agent capstone with FastAPI front-end. 11 lessons. |
 
 More tracks (RAG, evals, MCP, deep observability) land here over time.
 

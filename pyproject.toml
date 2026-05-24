@@ -4,8 +4,11 @@ version = "0.1.0"
 description = "Self-paced curriculum + deep-dive tracks for the Pydantic AI agent framework"
 requires-python = ">=3.13"
 dependencies = [
+    "fastapi>=0.136.3",
     "pydantic-ai>=1.102.0",
     "python-dotenv>=1.2.2",
+    "temporalio[pydantic]>=1.11.0",
+    "uvicorn[standard]>=0.47.0",
 ]
 
 [build-system]

@@ -1,0 +1,23 @@
+# Reduce build context size — these are not needed in the image.
+.git
+.venv
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.ipynb_checkpoints
+**/.ipynb_checkpoints
+*.ipynb
+node_modules
+.claude
+.env
+NOTES.md
+tracks/01-intro
+# Other temporal lesson dirs — only the capstone needs to ship
+tracks/02-temporal/examples/0[123456789]_*
+tracks/02-temporal/examples/01_temporal_tour.*
+tracks/02-temporal/docker
+tracks/02-temporal/lessons
+tracks/02-temporal/tests
+tracks/02-temporal/README.md

@@ -1,0 +1,110 @@
+# Capstone stack — Temporal + Postgres + UI + worker + FastAPI.
+# Self-contained: this is "your own Temporal server running custom
+# pydantic-ai workflows" in a single command.
+#
+# Bring up:  make temporal-10-up   (or: docker compose up -d --build)
+# Tear down: make temporal-10-down
+# Wipe:      make temporal-10-clean
+#
+# The build context is the repo root (../../../..) so the Dockerfile
+# can pull in `learn_pydantic_ai/` and the capstone source together.
+
+name: learn-pydantic-ai-capstone
+
+services:
+  postgresql:
+    image: postgres:13
+    container_name: capstone-postgres
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+    volumes:
+      - capstone-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  temporal:
+    image: temporalio/auto-setup:1.27
+    container_name: capstone-temporal
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment:
+      DB: postgres12
+      DB_PORT: 5432
+      POSTGRES_USER: temporal
+      POSTGRES_PWD: temporal
+      POSTGRES_SEEDS: postgresql
+      DEFAULT_NAMESPACE: learn-pydantic-ai
+      DEFAULT_NAMESPACE_RETENTION: 72h
+      SKIP_DEFAULT_NAMESPACE_CREATION: "false"
+    ports:
+      - "7233:7233"
+    # auto-setup binds to the container's external IP (NOT 127.0.0.1), so
+    # the bundled `temporal` CLI's default of localhost:7233 fails.
+    # Use `$(hostname)` to target the right address from inside the container.
+    healthcheck:
+      test: ["CMD-SHELL", "temporal --address $$(hostname):7233 operator cluster health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  temporal-ui:
+    image: temporalio/ui:2.36.0
+    container_name: capstone-temporal-ui
+    depends_on:
+      - temporal
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+    ports:
+      - "8080:8080"
+
+  worker:
+    build:
+      context: ../../../..
+      dockerfile: tracks/02-temporal/examples/11_capstone_fastapi/Dockerfile
+    container_name: capstone-worker
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_NAMESPACE: learn-pydantic-ai
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:?GOOGLE_API_KEY must be set in your shell or .env}
+      LOGFIRE_TOKEN: ${LOGFIRE_TOKEN:-}
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ../../../..
+      dockerfile: tracks/02-temporal/examples/11_capstone_fastapi/Dockerfile
+    container_name: capstone-api
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_NAMESPACE: learn-pydantic-ai
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:?GOOGLE_API_KEY must be set in your shell or .env}
+    command:
+      [
+        "uvicorn",
+        "app:app",
+        "--host", "0.0.0.0",
+        "--port", "8001",
+      ]
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/healthz')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  capstone-postgres-data:
+    name: learn-pydantic-ai-capstone-postgres-data

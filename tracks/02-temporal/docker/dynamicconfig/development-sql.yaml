@@ -1,0 +1,12 @@
+# Temporal dynamic config — overrides for local dev.
+#
+# auto-setup mounts this file at /etc/temporal/config/dynamicconfig/.
+# Empty config = use server defaults. Keep this file so the mount target
+# always exists; add entries here when a lesson needs to tune a limit.
+
+# Example (commented out): raise the per-namespace history-size cap so the
+# capstone workflow with many sub-runs doesn't trip the default limit.
+# limit.historyCount.error:
+#   - value: 100000
+#     constraints:
+#       namespace: "learn-pydantic-ai"
