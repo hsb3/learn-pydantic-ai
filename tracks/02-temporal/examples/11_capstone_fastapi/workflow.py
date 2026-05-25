@@ -13,14 +13,14 @@ Concepts mapped to lesson sources:
 
     | Concept                                | Lesson |
     |---|---|
-    | `TemporalAgent` + `PydanticAIWorkflow` | 02     |
-    | `@agent.tool_plain` lifted to activity | 03     |
-    | `activity_config` + `tool_activity_config` retry tiers | 04     |
-    | `event_stream_handler` streams events  | 05     |
-    | `@workflow.signal` + `workflow.wait_condition` | 06     |
-    | `workflow.execute_activity` + heartbeats | 07     |
-    | `LogfirePlugin` observability (wired in `worker.py`) | 08     |
-    | Multi-agent orchestration               | 09     |
+    | `TemporalAgent` + `PydanticAIWorkflow` | 03     |
+    | `@agent.tool_plain` lifted to activity | 04     |
+    | `activity_config` + `tool_activity_config` retry tiers | 05     |
+    | `event_stream_handler` streams events  | 06     |
+    | `@workflow.signal` + `workflow.wait_condition` | 07     |
+    | `workflow.execute_activity` + heartbeats | 08     |
+    | `LogfirePlugin` observability (wired in `worker.py`) | 09     |
+    | Multi-agent orchestration               | 10     |
 
 The worker process attaches `LogfirePlugin` so every activity in this
 workflow is a Logfire span with full HTTP-level capture.

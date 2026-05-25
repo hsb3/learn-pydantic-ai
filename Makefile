@@ -87,8 +87,9 @@ intro-%:
 # Pattern targets:
 #   make temporal-NN-worker  -> uv run python tracks/02-temporal/examples/NN_*/worker.py
 #   make temporal-NN         -> uv run python tracks/02-temporal/examples/NN_*/example.py
-# Each lesson lives in its own subdirectory because workflows need a worker
-# AND a starter — two files minimum.
+# Each lesson is its own subdirectory: a co-located README.md plus the lesson's
+# code. The worker/starter file split is a study-loop convention, not a
+# Temporal requirement — see tracks/02-temporal/README.md.
 
 temporal-%-worker:
 	@dir=$$(ls -d $(TEMPORAL)/examples/$**/ 2>/dev/null | head -1); \
@@ -102,16 +103,21 @@ temporal-%-worker:
 
 temporal-%:
 	@dir=$$(ls -d $(TEMPORAL)/examples/$**/ 2>/dev/null | head -1); \
-	pynb=$$(ls $(TEMPORAL)/examples/$**.py 2>/dev/null | head -1); \
-	if [ -n "$$pynb" ] && head -3 "$$pynb" 2>/dev/null | grep -q "jupyter:"; then \
-		ipynb=$${pynb%.py}.ipynb; \
-		echo "Temporal lesson $* is a paired notebook ($$ipynb)."; \
+	if [ -z "$$dir" ]; then \
+		echo "$(TEMPORAL)/examples/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \
+	fi; \
+	pynb=""; \
+	for f in $$dir*.py; do \
+		[ -f "$$f" ] && head -3 "$$f" 2>/dev/null | grep -q "jupyter:" && pynb="$$f" && break; \
+	done; \
+	if [ -n "$$pynb" ]; then \
+		echo "Temporal lesson $* is a paired notebook ($${pynb%.py}.ipynb)."; \
 		echo "Open in VS Code or run: make nb-exec"; \
-	elif [ -n "$$dir" ] && [ -f "$$dir/example.py" ]; then \
+	elif [ -f "$$dir/example.py" ]; then \
 		uv run --env-file .env python "$$dir/example.py"; \
-	elif [ -n "$$dir" ] && [ -f "$$dir/starter.py" ]; then \
+	elif [ -f "$$dir/starter.py" ]; then \
 		uv run --env-file .env python "$$dir/starter.py"; \
-	elif [ -n "$$dir" ] && [ -f "$$dir/app.py" ]; then \
+	elif [ -f "$$dir/app.py" ]; then \
 		uv run --env-file .env uvicorn --app-dir "$$dir" app:app --port 8001 --reload; \
 	else \
 		echo "$(TEMPORAL)/examples/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \

@@ -30,16 +30,22 @@ learn_pydantic_ai/        importable package — MODELS dict + .env loader (used
 data/models.json          generated catalog of valid `provider:model` strings (make dump-models)
 scripts/dump_models.py
 tracks/
-  01-intro/               examples/  lessons/  tests/
-  02-temporal/            same shape (scaffolded)
+  01-intro/               examples/  lessons/  tests/   (paired layout)
+  02-temporal/            examples/  tests/             (co-located layout)
 Makefile                  per-track lesson runners: make intro-NN, make temporal-NN, ...
 lefthook.yml              pre-push gate: runs make test-live
 ```
 
-Within a track, the convention is:
-- `examples/NN_<slug>.py` — runnable lesson code (numbered)
-- `lessons/NN-<slug>.md` — paired one-page lesson doc
-- `tests/` — pytest files for live smoke tests
+The two tracks lay lessons out differently:
+
+- **Track 01 — paired.** `examples/NN_<slug>.py` is the runnable code;
+  `lessons/NN-<slug>.md` is the paired one-page doc in a separate tree.
+- **Track 02 — co-located.** Each lesson is a directory `examples/NN_<slug>/`
+  whose `README.md` *is* the lesson narrative, sitting next to the code it
+  explains. There is no separate `lessons/` tree. See
+  [`tracks/02-temporal/README.md`](tracks/02-temporal/README.md).
+
+Both tracks keep `tests/` — pytest files for live smoke tests.
 
 ## Daily-use commands
 
