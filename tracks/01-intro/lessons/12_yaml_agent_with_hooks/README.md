@@ -71,5 +71,5 @@ Expected: `[hook] sending 1 messages to model`, a `---`, then a one-paragraph re
 - **Template strings need matching deps fields.** `{{ user_name }}` requires `deps.user_name` to exist. Missing fields raise at run time, not load time.
 - **`Agent.from_file` returns a less-typed agent.** YAML loses the static generics — output type defaults to `str` and deps to `Any` unless you pass them explicitly. Lean on `deps_type=` and `output_type=` on `from_file()` if you want type checking back.
 
-## Next
-You've completed Track 01. Re-read [00_orientation](../00_orientation/README.md) — the vocabulary section will read very differently now. From here, the productive next steps are: real Logfire integration (`logfire.instrument_pydantic_ai()`), MCP servers, the `ProcessHistory` capability for long conversations, `iter()` for step-by-step control of the agent loop — or jump straight to [Track 02](../../README.md) to run agents durably under Temporal.
+## Bridge
+You have lifecycle Hooks for fine-grained observability, but you can't yet *see* the shape of a run. [Lesson 13](../13_clai_agent_repl/README.md) plugs a YAML agent into the `clai` REPL so it's your daily-use tool; [Lesson 14](../14_logfire_observability/README.md) wires Logfire on top so every model and tool call shows up in a nested trace tree.

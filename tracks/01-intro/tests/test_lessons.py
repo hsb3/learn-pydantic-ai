@@ -12,7 +12,7 @@ import pytest
 
 from conftest import TRACK, run
 
-SCRIPT_LESSONS = ["02", "03", "04", "05", "06", "07", "08", "09", "11", "12"]
+SCRIPT_LESSONS = ["02", "03", "04", "05", "06", "07", "08", "09", "11", "12", "14"]
 NOTEBOOK_LESSONS = ["01", "13"]
 
 

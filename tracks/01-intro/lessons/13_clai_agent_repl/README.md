@@ -31,7 +31,7 @@ make repl-prompt P="What's new in uv?"     # one-shot prompt
 3. Swap the model line to `google:gemini-3-pro-preview`. Compare answer quality vs cost.
 
 ## Stub status
-This is intentionally minimal — the notebook just intros the agent and points at `make repl`. The wider hosting picture (web UI, A2A, durable execution) lives in [`runtimes.md`](./runtimes.md).
+This is intentionally minimal — the notebook just intros the agent and points at `make repl`. The wider hosting picture (web UI, A2A, durable execution) lives in [`docs/runtimes.md`](../../../../docs/runtimes.md).
 
 ## Bridge
-You've finished the curriculum. From here: read [`runtimes.md`](./runtimes.md), then circle back to whichever lesson you want to deepen — testing, message history, or the Temporal teaser that's waiting for a real deep dive.
+You have a daily-use REPL. [Lesson 14](../14_logfire_observability/README.md) wires Logfire on top so every model and tool call shows up in a nested trace tree — the "now make it observable" step before moving to Track 02's durable execution story.

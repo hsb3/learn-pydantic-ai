@@ -1517,6 +1517,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
+    { name = "logfire" },
     { name = "pydantic-ai" },
     { name = "python-dotenv" },
     { name = "streamlit" },
@@ -1536,6 +1537,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.136.3" },
+    { name = "logfire", specifier = ">=4.33.0" },
     { name = "pydantic-ai", specifier = ">=1.102.0" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "streamlit", specifier = ">=1.57.0" },

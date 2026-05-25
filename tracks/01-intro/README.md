@@ -1,6 +1,6 @@
 # Track 01 — Intro
 
-The 101: build a real pydantic-ai agent from `Agent(model)` through tests, multi-agent delegation, YAML-defined agents with lifecycle hooks, and a `clai` REPL capstone.
+The 101: build a real pydantic-ai agent from `Agent(model)` through tests, multi-agent delegation, YAML-defined agents with lifecycle hooks, a `clai` REPL, and a Logfire-traced run.
 
 ## Where to start
 
@@ -25,6 +25,7 @@ Each lesson is a directory `lessons/NN_<slug>/` containing the README and the ru
 | 11 | [Multi-agent](lessons/11_multi_agent/README.md) | Parent agent delegates via a tool |
 | 12 | [YAML + hooks](lessons/12_yaml_agent_with_hooks/README.md) | `Agent.from_file`, `Hooks` |
 | 13 | [clai agent REPL](lessons/13_clai_agent_repl/README.md) (notebook) | Plug a YAML agent into `clai`; `make repl` |
+| 14 | [Logfire observability](lessons/14_logfire_observability/README.md) | `logfire.instrument_pydantic_ai()` — call-tree traces for any agent |
 
 Appendix: [`docs/runtimes.md`](../../docs/runtimes.md) — `clai`, `Agent.to_web/to_a2a/to_ag_ui`, and a Temporal teaser that leads into Track 02.
 
