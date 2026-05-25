@@ -8,22 +8,24 @@
 _(nothing right now)_
 
 ### Next up
-_(pull from backlog when ready)_
+- [ ] Track 01 README rewrite — line-number code refs (`02_hello_agent.py:16`) replaced by symbol refs + verbatim snippets per [LESSON-DEVELOPMENT-GUIDE](docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md) rule 3.2 (13 lesson READMEs)
+- [ ] [Temporal server + workflow requirements](#temporal-server--workflow-requirements) explainer — what the cluster needs from your code
 
 ### Backlog
 
-**Repo organization**
-- [ ] Track 01 has line-number code refs (`02_hello_agent.py:16`) — rewrite as symbol refs + verbatim snippets per [LESSON-DEVELOPMENT-GUIDE](docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md) rule 3.2
+**Apply inspiration-mining findings** — patterns from [docs/dev_docs/inspiration-notes.md](docs/dev_docs/inspiration-notes.md)
+- [ ] Lesson 08 (long-running) — dual-heartbeat + checkpoint coordination from langgraph-checkpoint-recovery (separate from the continue-as-new add)
+- [ ] Lesson 09 (Logfire observability) — pair Logfire traces with `@workflow.query` as the in-cluster observability channel
+- [ ] Capstones (10, 11) — show `continue_as_new` weaving into a real multi-agent loop; mention the adapter pattern as a Track-03 escape hatch for non-Pydantic-AI agent frameworks
+- [x] ~~Lesson 07 — add `@workflow.query`~~ (done 2026-05-25; see commit)
+- [x] ~~Lesson 08 — promote `continue_as_new` from "out of scope" to demonstrated~~ (done 2026-05-25; see commit)
 
-**Concept docs to write** — see [Document stubs](#document-stubs)
+**Concept docs (deferred)**
 - [ ] Temporal Nexus explainer
 - [ ] Temporal server UI tour
-- [ ] Temporal server + workflow requirements
-
-**Research**
-- [ ] Decide which inspiration-notes ideas to act on — see [docs/dev_docs/inspiration-notes.md](docs/dev_docs/inspiration-notes.md)
 
 ### Done
+- [x] 2026-05-25 — Applied 2 inspiration findings: lesson 07 now teaches signals **and** queries side-by-side (ralph-wiggum pattern); lesson 08 now actually demonstrates `continue_as_new` instead of linking out
 - [x] 2026-05-25 — Mined steveandroulakis repos; findings in [docs/dev_docs/inspiration-notes.md](docs/dev_docs/inspiration-notes.md) — actionable hooks into lessons 05, 07, 08, 09 and the capstones
 - [x] 2026-05-25 — Codified lesson file decomposition standard as [dev guide rule 3.6](docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md#36-file-decomposition--split-only-when-something-forces-it); slimmed CLAUDE.md pointer
 - [x] 2026-05-25 — Drafted [`pai` REPL quickstart](docs/pai-quickstart.md)

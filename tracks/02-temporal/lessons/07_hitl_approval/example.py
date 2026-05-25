@@ -38,8 +38,16 @@ async def main() -> None:
     print(
         f"  UI: http://localhost:8080/namespaces/learn-pydantic-ai/workflows/{workflow_id}"
     )
-    print("Auto-approving in 3s — open the UI now to see it paused...")
+    print("Letting the agent draft for 3s, then reading the draft via query...")
     await asyncio.sleep(3)
+
+    # Queries are read-only, side-effect-free RPCs. They run against the
+    # workflow's current state without unsticking the `wait_condition` —
+    # ideal for letting a reviewer fetch what's pending without committing
+    # to approve or reject yet. `current_draft` is `None` until the draft
+    # agent finishes; if it's still None here, the agent took longer than 3s.
+    draft = await handle.query(ApprovalWorkflow.current_draft)
+    print(f"\nDraft (via @workflow.query):\n  {draft}\n")
 
     # `handle.signal(...)` sends the signal by name. Passing the bound
     # method (`ApprovalWorkflow.approve`) lets the SDK derive the signal

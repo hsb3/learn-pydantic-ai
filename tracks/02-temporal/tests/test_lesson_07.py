@@ -42,11 +42,18 @@ async def test_lesson_07_runs() -> None:
                 id="test-lesson-07",
                 task_queue=TASK_QUEUE,
             )
-            # Give the workflow a beat to do its draft + reach the
-            # `wait_condition`. The signal would be queued by the server
-            # against the workflow ID anyway, so this sleep is a comfort
-            # margin, not a correctness gate.
-            await asyncio.sleep(1)
+            # Poll the query until the draft agent has populated _draft.
+            # The query goes via a gRPC round-trip to the worker; it's the
+            # read-only counterpart to a signal and never wakes
+            # wait_condition.
+            for _ in range(20):
+                draft = await handle.query(ApprovalWorkflow.current_draft)
+                if draft is not None:
+                    break
+                await asyncio.sleep(0.5)
+            assert draft is not None, "current_draft query never returned a draft"
+            assert isinstance(draft, str) and len(draft) > 0
+
             await handle.signal(ApprovalWorkflow.approve, "test approval")
             result = await handle.result()
 

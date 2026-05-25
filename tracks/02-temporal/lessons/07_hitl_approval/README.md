@@ -1,4 +1,4 @@
-# Lesson 07 — Human-in-the-loop with signals
+# Lesson 07 — Human-in-the-loop with signals & queries
 
 > The code for this lesson is the three `.py` files in this folder. Read this
 > page top to bottom; it quotes every part of the code you need to see.
@@ -11,21 +11,23 @@ inside a workflow — the handler ran as an activity.
 
 ## Goal
 
-Pause a running workflow until an external approver sends a signal. This is the
-durable analogue of LangGraph's `interrupt()` — except the pause is
-server-persisted, not just stored in your local checkpointer.
+Pause a running workflow until an external approver sends a signal — and let
+that approver *read* the workflow's current draft via a query before deciding.
+This is the durable analogue of LangGraph's `interrupt()` paired with a
+state-inspection API, except the pause is server-persisted and the query goes
+through the same cluster.
 
 ## Files in this lesson
 
 | File | Role |
 |---|---|
-| `workflows.py` | Defines `ApprovalWorkflow`, the `@workflow.defn` class — a draft step, a `@workflow.signal` handler, and a `wait_condition` pause. The deterministic code being taught. |
+| `workflows.py` | Defines `ApprovalWorkflow`, the `@workflow.defn` class — a draft step, a `@workflow.signal` handler, a `@workflow.query` getter, and a `wait_condition` pause. The deterministic code being taught. |
 | `worker.py` | The **worker process**. Registers `ApprovalWorkflow` and polls the task queue. Run it in **terminal A** and leave it running. |
-| `example.py` | The **client**. Starts the workflow, waits 3 seconds, signals it, awaits the result. Run it in **terminal B**. |
+| `example.py` | The **client**. Starts the workflow, queries the draft after a beat, signals approval, awaits the result. Run it in **terminal B**. |
 
-Workers don't need to know about signals — the server routes a signal to
-whichever worker picks up the matching workflow task. Full explanation of the
-three-file layout: [Anatomy of a Temporal lesson](../../README.md#anatomy-of-a-temporal-lesson).
+Workers don't need to know about signals or queries — the server routes both
+to whichever worker picks up the matching workflow task. Full explanation of
+the three-file layout: [Anatomy of a Temporal lesson](../../README.md#anatomy-of-a-temporal-lesson).
 
 ## How it works
 
@@ -37,12 +39,28 @@ and resumes the instant a signal arrives.
 
 This is [Lesson 02](../02_stateful_workflow/README.md)'s `signal` /
 `wait_condition` mechanic, unchanged — but now it gates an **agent** instead of
-a running tally. Lesson 02 taught the bare mechanism with no I/O so the class
-machinery wasn't competing with anything else for your attention. Here the same
-machinery does real work: a sync `@workflow.signal` handler mutates instance
-state, and `workflow.wait_condition(predicate)` suspends the workflow body —
-costing zero CPU — until that state flips. The body runs an agent first, then
-parks on the predicate.
+a running tally, and an explicit `@workflow.query` pairs with the signal. Lesson
+02 taught the bare mechanism with no I/O so the class machinery wasn't competing
+with anything else for your attention. Here the same machinery does real work:
+a sync `@workflow.signal` handler mutates instance state, a sync
+`@workflow.query` exposes that state to read-only callers, and
+`workflow.wait_condition(predicate)` suspends the workflow body — costing zero
+CPU — until the state flips. The body runs an agent first, exposes the draft on
+`self`, then parks on the predicate.
+
+**Signals vs. queries** — both are gRPC calls the cluster dispatches to a worker
+running the workflow. They split by intent:
+
+| | Signal | Query |
+|---|---|---|
+| Effect | mutates instance state | reads instance state, no mutation |
+| Signature | sync; returns `None` | sync; returns a JSON-serializable value |
+| Recorded in history? | yes (event survives replay) | no (read-only path) |
+| Wakes `wait_condition`? | yes (predicate re-evaluates after mutation) | no |
+
+Use a signal when you want the workflow to *react*. Use a query when you want
+to *inspect* without committing to a decision yet — perfect for "show me the
+current draft" before "ok, approve."
 
 ```
    ┌──────── workflow body ────────┐
@@ -74,19 +92,21 @@ canonical shape is in [Pattern](#pattern).
 |---|---|
 | `interrupt(value)` raising `GraphInterrupt` | `workflow.wait_condition(predicate)` |
 | `Command(resume=...)` over the API | `handle.signal(MyWorkflow.method, payload)` |
+| `graph.get_state(config)` reading a paused thread | `handle.query(MyWorkflow.getter)` |
 | Thread checkpoint persisted to your store | Workflow history persisted to the Temporal cluster |
 
 ## Walk the code
 
 ### `workflows.py` — the workflow class
 
-**`ApprovalWorkflow.__init__`** initializes `self._approved` and
-`self._approval_payload`. Instance state is the bridge between signals (the
-writers) and the workflow body (the reader). It runs on every workflow start
-*and* every replay, so it only sets values.
+**`ApprovalWorkflow.__init__`** initializes `self._draft`, `self._approved`,
+and `self._approval_payload`. Instance state is the bridge between signals (the
+writers), queries (the readers), and the workflow body. It runs on every
+workflow start *and* every replay, so it only sets values.
 
 ```python
 def __init__(self) -> None:
+    self._draft: str | None = None
     self._approved: bool = False
     self._approval_payload: str | None = None
 ```
@@ -102,19 +122,32 @@ def approve(self, payload: str) -> None:
     self._approved = True
 ```
 
-**The `run` body** drafts with the agent, then parks on `wait_condition(...)` —
-the durable pause. The lambda gets re-evaluated whenever the workflow takes a
-step (typically right after a signal arrives), so the wake-up trigger is any
-state mutation a signal handler makes.
+**The `current_draft` query** is a `@workflow.query` on a sync, side-effect-free
+method. Queries are read-only RPCs — they can't mutate state, can't `await`,
+and aren't recorded in workflow history. They run against whatever instance
+state the workflow has at the moment of the call.
+
+```python
+@workflow.query
+def current_draft(self) -> str | None:
+    return self._draft
+```
+
+**The `run` body** drafts with the agent, stashes the draft on `self` so the
+query has something to return, then parks on `wait_condition(...)` — the
+durable pause. The lambda gets re-evaluated whenever the workflow takes a step
+(typically right after a signal arrives), so the wake-up trigger is any state
+mutation a signal handler makes.
 
 ```python
 @workflow.run
 async def run(self, topic: str) -> str:
     draft = await draft_agent.run(f"Draft a short blurb about: {topic}")
+    self._draft = draft.output                     # exposed to current_draft query
     await workflow.wait_condition(lambda: self._approved)
     return (
         f"APPROVED — feedback: {self._approval_payload}\n\n"
-        f"Original draft:\n{draft.output}"
+        f"Original draft:\n{self._draft}"
     )
 ```
 
@@ -148,15 +181,19 @@ handle = await client.start_workflow(
     task_queue=TASK_QUEUE,
 )
 await asyncio.sleep(3)
+draft = await handle.query(ApprovalWorkflow.current_draft)
+print(f"Draft: {draft}")
 await handle.signal(ApprovalWorkflow.approve, "looks good, ship it")
 result = await handle.result()
 ```
 
-`handle.signal(...)` sends the signal by name. Passing the bound method
-(`ApprovalWorkflow.approve`) lets the SDK derive the signal name automatically —
-the same as `.signal("approve", "...")` would. The 3-second sleep is purely for
-the demo: it gives you a window to watch the workflow show up `Running` and
-paused in the UI before the signal unsticks it.
+`handle.signal(...)` sends the signal by name, and `handle.query(...)` sends a
+read-only RPC. Passing the bound method (`ApprovalWorkflow.approve` /
+`ApprovalWorkflow.current_draft`) lets the SDK derive the name automatically —
+same as `.signal("approve", "...")` / `.query("current_draft")` would. The
+3-second sleep gives the draft agent time to finish before the query fires; if
+the agent took longer, `current_draft` would return `None`. In real ops you'd
+poll the query until it returns a non-`None` value (or call it from a UI).
 
 ## Run it
 
@@ -181,10 +218,15 @@ the signal arrives.
 
 1. **Manual approval from the CLI.** Comment out the `await handle.signal(...)`
    line in `example.py`. Re-run the starter — it will print the workflow ID and
-   then hang on `handle.result()`. In a third terminal, send the signal
-   yourself:
+   then hang on `handle.result()`. In a third terminal, query the draft and
+   then send the signal yourself:
 
    ```bash
+   temporal workflow query \
+     --workflow-id <id-printed-by-starter> \
+     --type current_draft \
+     --namespace learn-pydantic-ai
+
    temporal workflow signal \
      --workflow-id <id-printed-by-starter> \
      --name approve \
@@ -210,12 +252,21 @@ the signal arrives.
    that flips `self._approved = True` but stores the reason and changes the
    final string. Two ways out of the same pause.
 
+4. **A richer query.** Replace `current_draft` with `status() -> dict` that
+   returns `{"drafted": bool, "approved": bool, "draft": str | None}` — a
+   single round-trip view of the workflow's state. This is the shape a UI
+   would call to render a review screen.
+
 ## Gotchas
 
 - **Signal handler must be sync.** `async def approve` will deserialize fine but
   won't be picked up by the `@workflow.signal` decorator the way you expect. Use
   a sync method that mutates state; do the async work in the workflow body once
   the predicate flips.
+- **Query handlers must be sync AND side-effect free.** No `await`, no mutation,
+  no logging that hits external state. Queries can fire during replay; a side
+  effect would either skew replay or fail the determinism check. Read `self`,
+  return a value, done.
 - **State must live on `self`.** Module-level globals are not deterministic
   across replays — `__init__` runs on every workflow start (and replay), and
   that's where signal-visible state belongs.
@@ -228,8 +279,10 @@ the signal arrives.
 ## Bridge
 
 You can now pause a running agent on durable, server-persisted state and resume
-it on a signal from Python, the CLI, or any HTTP caller — the **pause** half of
-durability, workflows that spend most of their wall-clock time waiting.
+it on a signal from Python, the CLI, or any HTTP caller — and you can read the
+workflow's state without committing to a decision yet via a query. That's the
+**pause** half of durability, workflows that spend most of their wall-clock
+time waiting.
 [Lesson 08](../08_long_running/README.md) handles the other half: activities
 that spend most of their wall-clock time **working**. You'll meet
 `start_to_close_timeout`, `heartbeat_timeout`, and the heartbeat-or-die protocol
@@ -245,6 +298,7 @@ class ApprovalWorkflow(PydanticAIWorkflow):
     __pydantic_ai_agents__ = [my_agent]
 
     def __init__(self) -> None:
+        self._draft: str | None = None
         self._approved: bool = False
         self._payload: str = ""
 
@@ -253,13 +307,19 @@ class ApprovalWorkflow(PydanticAIWorkflow):
         self._payload = payload
         self._approved = True
 
+    @workflow.query                     # MUST be sync, side-effect free
+    def current_draft(self) -> str | None:
+        return self._draft
+
     @workflow.run
     async def run(self, topic: str) -> str:
         draft = await my_agent.run(f"Draft something about: {topic}")
+        self._draft = draft.output
         await workflow.wait_condition(lambda: self._approved)
-        return f"APPROVED: {self._payload}\n\n{draft.output}"
+        return f"APPROVED: {self._payload}\n\n{self._draft}"
 ```
 
-Send the signal from Python:
-`await handle.signal(ApprovalWorkflow.approve, "ok")`. From the CLI:
-`temporal workflow signal --workflow-id <id> --name approve --input '"ok"'`.
+Send the signal from Python: `await handle.signal(ApprovalWorkflow.approve, "ok")`.
+Query from Python: `await handle.query(ApprovalWorkflow.current_draft)`.
+From the CLI: `temporal workflow signal --workflow-id <id> --name approve --input '"ok"'`
+and `temporal workflow query --workflow-id <id> --type current_draft`.

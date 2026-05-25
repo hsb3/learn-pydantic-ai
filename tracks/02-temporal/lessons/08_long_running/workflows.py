@@ -25,8 +25,8 @@ Activity timeouts to know:
 
 For workflows that need to live longer than Temporal's per-workflow
 history limit (~50k events), use `workflow.continue_as_new(...)` to start
-a fresh history with the current state as input. That's out of scope for
-this lesson — see https://docs.temporal.io/workflows#continue-as-new.
+a fresh history with the current state as input. See the README's
+`continue_as_new` section and Try-it #4 for a worked demonstration.
 """
 
 from __future__ import annotations

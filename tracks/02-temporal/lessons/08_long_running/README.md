@@ -81,13 +81,54 @@ LLM. Splitting them — agent picks WHAT to do, workflow body invokes the long
 activity — lets each retry independently. That's the shape this lesson teaches
 because it's what you'd ship.
 
-### `continue-as-new` (briefly)
+### `continue_as_new` — the long-horizon escape hatch
 
-A workflow's history has a hard limit (~50k events / a few MB). For workflows
-that run for months or process millions of items, use
-`workflow.continue_as_new(...)` to start a fresh history with the current state
-as input. Out of scope for this lesson — see
-[Temporal's continue-as-new docs](https://docs.temporal.io/workflows#continue-as-new).
+A workflow's history has a hard cap (~50,000 events / a few MB). Once a workflow
+crosses that, the server refuses to record more — your workflow can't make
+progress. That doesn't affect short scrapes like this one, but a workflow that
+runs for weeks (polling a queue, processing a long stream, monitoring something)
+will hit the wall eventually.
+
+The fix is `workflow.continue_as_new(...)`. It atomically:
+
+1. Closes the current workflow execution with **status `CONTINUED_AS_NEW`**
+2. Starts a fresh execution under the **same workflow ID**, passing whatever
+   state you give it as the new input
+
+The new execution gets an empty history; the old one's history can be archived.
+Callers `await handle.result()` transparently — Temporal follows the
+continue-as-new chain to the final execution and returns its result.
+
+Wrapping `LongScrapeWorkflow` to roll over every N iterations looks like this:
+
+```python
+@workflow.defn
+class LongScrapeLoopWorkflow(PydanticAIWorkflow):
+    """Scrape a stream of topics; continue-as-new every 100 iterations."""
+
+    __pydantic_ai_agents__ = [url_agent]
+
+    @workflow.run
+    async def run(self, topics: list[str], iteration: int = 0) -> str:
+        BATCH = 100
+        for i in range(BATCH):
+            if not topics:
+                return f"done after {iteration + i} iterations"
+            topic = topics.pop(0)
+            await self._scrape_one(topic)
+        # History is getting long — hand off to a fresh execution.
+        workflow.continue_as_new(args=[topics, iteration + BATCH])
+```
+
+`continue_as_new(...)` doesn't return — it raises `_NewWorkflowSourceContinuedAsNew`
+which Temporal catches at the workflow boundary. Anything after the call is
+unreachable (and the type checker will complain if you use `args=` plus typed
+return). Pass forward **only** the state the new execution needs; that's the
+discipline ralph-wiggum's README calls out as the "essential state" rule.
+
+It's not part of this lesson's runnable code — the scrape workflow finishes in
+seconds and never approaches the history limit — but it's the answer when
+someone asks "what happens when a workflow runs for months?"
 
 ## Walk the code
 
@@ -227,6 +268,23 @@ Open the Temporal UI while it's running. In the workflow history you will see
    ```
    Now retried attempts resume mid-way instead of re-doing work.
 
+4. **Continue-as-new in action.** Add a new workflow in `workflows.py`:
+   ```python
+   @workflow.defn
+   class IterateWorkflow:
+       @workflow.run
+       async def run(self, iteration: int = 0) -> int:
+           workflow.logger.info("iteration=%d", iteration)
+           if iteration >= 3:
+               return iteration
+           workflow.continue_as_new(args=[iteration + 1])
+   ```
+   Register it with `workflows=[LongScrapeWorkflow, IterateWorkflow]` in
+   `worker.py`, then start it from a one-off script. In the UI you'll see
+   four executions linked by the **continued-as-new** relationship,
+   each with the next iteration as its input. `handle.result()` follows
+   the chain and returns `3`.
+
 ## Gotchas
 
 - **`heartbeat_timeout` must be strictly less than `start_to_close_timeout`.**
@@ -243,6 +301,11 @@ Open the Temporal UI while it's running. In the workflow history you will see
 - **Workflow code cannot heartbeat.** `activity.heartbeat()` raises if called
   outside an activity. Heartbeats belong in `@activity.defn` bodies only — for
   workflow-level pauses, you'd use Lesson 07's signals instead.
+- **`continue_as_new(...)` doesn't return.** It raises an internal exception
+  Temporal catches at the workflow boundary. Nothing after the call runs;
+  putting code there is dead. Hand off ONLY the state the next execution needs
+  — `continue_as_new` is for shedding history weight, not for hoisting old
+  state along for the ride.
 
 ## Bridge
 
@@ -277,6 +340,8 @@ result = await workflow.execute_activity(
 ```
 
 Register the activity at worker startup:
-`run_worker(workflows=[X], activities=[long_scrape])`. For workflows that need to
-outlive history limits, look at `continue-as-new` (out of scope here).
+`run_worker(workflows=[X], activities=[long_scrape])`. For workflows that need
+to outlive Temporal's per-execution history limit (~50k events), shed weight by
+calling `workflow.continue_as_new(args=[...])` — same workflow ID, fresh
+execution, passes forward only the state you specify.
 ```
