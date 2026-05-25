@@ -1,0 +1,35 @@
+# Fast-path local stack: Temporal dev server (+ Web UI) and Redis for streaming.
+# Prod: swap to your Azure Container Apps + managed Postgres/Redis topology.
+#
+# NOTE: auto-setup's wait-for-postgres loop uses ${DB_PORT} verbatim — omit it
+# and the server hangs on "Waiting for PostgreSQL to startup" forever. The
+# postgres healthcheck + depends_on condition removes the first-boot race.
+services:
+  temporal:
+    image: temporalio/auto-setup:1.25
+    ports: ["7233:7233"]
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_SEEDS=postgres
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+    depends_on:
+      postgres:
+        condition: service_healthy
+  temporal-ui:
+    image: temporalio/ui:2.34.0
+    ports: ["8233:8080"]
+    environment: [TEMPORAL_ADDRESS=temporal:7233]
+    depends_on: [temporal]
+  postgres:
+    image: postgres:16
+    environment: [POSTGRES_USER=temporal, POSTGRES_PASSWORD=temporal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]

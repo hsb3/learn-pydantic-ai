@@ -1,0 +1,18 @@
+[project]
+name = "duragraph"
+version = "0.1.0"
+description = "A langgraph-api-compatible run/thread server on Temporal + Pydantic AI"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "pydantic>=2.8",
+  "pydantic-settings>=2.4",
+  "pydantic-ai-slim[temporal,openai]>=1.0",   # temporal: durable_exec.temporal; openai: chat_agent's provider
+  "temporalio>=1.7",
+  "redis>=5.0",                          # async pub/sub for the streaming side channel
+  "sse-starlette>=2.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "anyio>=4.0"]
