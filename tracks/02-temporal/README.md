@@ -269,16 +269,27 @@ chapters worth writing — in rough priority order:
    `TemporalRunContext` with custom `serialize_run_context`.
 3. **Production deployment** — Docker worker image, graceful drain, horizontal
    scaling via task queue topology, Temporal Cloud vs self-hosted trade-offs.
-4. **`continue-as-new`** — full demo (Lesson 08 mentions it). Required for
-   long-lived workflows that exceed the history-size limit.
+4. **`continue-as-new` in a real multi-agent loop** — Lesson 08 demonstrates
+   the mechanic in isolation; a capstone-scale demo (e.g. a research workflow
+   that processes a long topic stream) would close the loop.
 5. **`provider_factory` / `models` kwarg on `TemporalAgent`** — runtime model
    switching and provider key injection from deps.
-6. **Determinism deep dive** — a standalone appendix on what the sandbox blocks
-   and why, with concrete "what breaks" examples.
+6. **Determinism deep dive** — [`docs/temporal/workflow-requirements.md`](../../docs/temporal/workflow-requirements.md)
+   covers the determinism contract at a reference level; a "what actually
+   breaks" appendix with intentionally-broken examples would still be valuable.
 7. **Child workflows** — fan-out patterns via `execute_child_workflow`,
    sub-workflow ownership, propagating cancellations.
 8. **`AgentPlugin`** — the single-agent alternative to declaring
    `__pydantic_ai_agents__` on a `PydanticAIWorkflow` subclass.
+
+---
+
+## Reference docs
+
+Living reference material lives in [`docs/temporal/`](../../docs/temporal/):
+
+- [`workflow-requirements.md`](../../docs/temporal/workflow-requirements.md) — what Temporal needs from your code (the four collaborators, determinism contract, pre-flight checklist).
+- [`codec-server.md`](../../docs/temporal/codec-server.md) — the codec server explainer: encrypting payloads end-to-end, what the Web UI / CLI need to decode them.
 
 ---
 

@@ -9,7 +9,6 @@ _(nothing right now)_
 
 ### Next up
 - [ ] Track 01 README rewrite — line-number code refs (`02_hello_agent.py:16`) replaced by symbol refs + verbatim snippets per [LESSON-DEVELOPMENT-GUIDE](docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md) rule 3.2 (13 lesson READMEs)
-- [ ] [Temporal server + workflow requirements](#temporal-server--workflow-requirements) explainer — what the cluster needs from your code
 
 ### Backlog
 
@@ -25,6 +24,7 @@ _(nothing right now)_
 - [ ] Temporal server UI tour
 
 ### Done
+- [x] 2026-05-25 — Drafted [Temporal server + workflow requirements](docs/temporal/workflow-requirements.md) explainer (the four collaborators, minimum workflow, determinism contract, activity contract, pre-flight checklist)
 - [x] 2026-05-25 — Applied 2 inspiration findings: lesson 07 now teaches signals **and** queries side-by-side (ralph-wiggum pattern); lesson 08 now actually demonstrates `continue_as_new` instead of linking out
 - [x] 2026-05-25 — Mined steveandroulakis repos; findings in [docs/dev_docs/inspiration-notes.md](docs/dev_docs/inspiration-notes.md) — actionable hooks into lessons 05, 07, 08, 09 and the capstones
 - [x] 2026-05-25 — Codified lesson file decomposition standard as [dev guide rule 3.6](docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md#36-file-decomposition--split-only-when-something-forces-it); slimmed CLAUDE.md pointer
@@ -77,11 +77,6 @@ Drafts to expand later. Promote to [docs/](docs/) once they have substance.
 
 ### Temporal server UI tour
 Pages to cover: Workflows · Schedules · Batch · Deployments · Archive · Namespaces
-
-### Temporal server + workflow requirements
-- For the server to do its job for a workflow, the following must be true: …
-- Minimum required structure for a workflow: …
-- Optional elements: …
 
 ---
 
