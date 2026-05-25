@@ -63,6 +63,13 @@ and the runnable code side by side.
 
 Intro lessons 01 & 13 and temporal lesson 01 are `.py` ↔ `.ipynb` pairs. The `.py` (percent-format, `# %%`) is the source of truth. `make nb-sync` aligns them, `make nb-exec` runs them headless (this is how notebook lessons are tested), `make nb-clear` strips outputs before committing.
 
+### Reference docs
+
+- `docs/temporal/` — Temporal explainers: `codec-server.md`, `workflow-requirements.md` (what the cluster needs from your code)
+- `docs/pai-quickstart.md` — `pai`/`clai` CLI cheatsheet (binary is `pai`, help text says `clai`)
+- `docs/runtimes.md` — pydantic-ai runtime surfaces (clai, `to_web/to_a2a/to_ag_ui`, Temporal teaser)
+- `docs/dev_docs/` — authoring process: `LESSON-DEVELOPMENT-GUIDE.md`, `lesson-template.md`, `inspiration-notes.md` (patterns mined from reference repos), `ai_gen/` (point-in-time AI-generated planning docs)
+
 ### Lesson file decomposition
 
 Single-file lessons by default. Split only when **(a)** Temporal sandbox isolation forces `workflows.py` apart from I/O-doing code, **(b)** a two-process study loop needs separate `worker.py` + `example.py`, **(c)** capstone complexity warrants role-based files (`agents/`, `activities.py`, …), or **(d)** an external framework consumes the file (`app.py` for uvicorn, `ui.py` for streamlit). Full rule: see `docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md` rule 3.6.
