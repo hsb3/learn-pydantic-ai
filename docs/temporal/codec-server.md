@@ -6,9 +6,9 @@ A codec server is **a small HTTP service you run that the Temporal Web UI and `t
 
 ## Where it sits
 
-This is the existing data converter picture (in [`assets/temporal-code-server-arch.png`](../../assets/temporal-code-server-arch.png)):
+This is the data converter picture (in [`assets/temporal-data-converter-arch.png`](../../assets/temporal-data-converter-arch.png)):
 
-![Data converter architecture](../../assets/temporal-code-server-arch.png)
+![Data converter architecture](../../assets/temporal-data-converter-arch.png)
 
 - **You develop**: workflow and activity code (the inner black boxes).
 - **You operate**: SDK Client and Worker processes — both contain a Data Converter that encodes outbound payloads and decodes inbound ones.

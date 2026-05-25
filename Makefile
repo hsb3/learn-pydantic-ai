@@ -4,7 +4,7 @@
 .DEFAULT_GOAL := help
 .PHONY: help install nb-sync nb-exec nb-clear nb-roundtrip \
         repl repl-prompt repl-claude repl-claude-web \
-        test test-all test-lessons test-clai test-live \
+        test test-lessons test-clai test-live \
         test-lessons-temporal test-against-local-server \
         temporal-up temporal-down temporal-clean temporal-ui temporal-status \
         temporal-11-up temporal-11-down temporal-11-clean temporal-11-build \
@@ -183,11 +183,8 @@ temporal-11-ui:  ## Streamlit frontend for the capstone (worker + temporal-11-ap
 	  --server.port 8501 --server.headless true
 
 # ── tests ──────────────────────────────────────────────────────────────────
-test:  ## Run the intro Lesson 10 test file (fast, mocked)
+test:  ## Run the intro Lesson 10 test file (fast, mocked — the only mocked test in the curriculum)
 	uv run pytest $(INTRO)/lessons/10_testing/10_testing.py -v
-
-test-all:  ## Discover and run every test under tracks/*/lessons (fast, mocked)
-	uv run pytest $(INTRO)/lessons/ $(TEMPORAL)/lessons/ -v
 
 test-lessons:  ## Live smoke test — every intro lesson via `make intro-NN` (hits real APIs)
 	uv run pytest $(INTRO)/tests/test_lessons.py -v

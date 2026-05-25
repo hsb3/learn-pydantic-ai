@@ -19,8 +19,7 @@ make dump-models          # regenerate data/models.json (after upgrading pydanti
 ### Tests
 
 ```bash
-make test                 # fast — intro Lesson 10's mocked TestModel suite only
-make test-all             # all tests under tracks/*/lessons (fast, mocked)
+make test                 # fast — intro Lesson 10's mocked TestModel suite (only mocked test in the curriculum)
 make test-lessons         # LIVE — every intro lesson, hits real APIs (~costs cents)
 make test-clai            # LIVE — both YAML clai agents incl. Anthropic native tools
 make test-lessons-temporal  # temporal lessons under WorkflowEnvironment.start_local() (no docker)

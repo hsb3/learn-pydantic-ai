@@ -62,7 +62,7 @@ Drafts to expand later. Promote to [docs/](docs/) once they have substance.
 
 ### Temporal codec server
 - What it is, why it exists (encryption/redaction of payloads in the Temporal UI)
-- Architecture reference: ![codec server arch](assets/temporal-code-server-arch.png)
+- Architecture reference: ![data converter arch](assets/temporal-data-converter-arch.png) (worker/client-side encoding — the codec server sits adjacent)
 - Minimum setup
 - When to use it vs. when not to
 
@@ -99,7 +99,7 @@ uv run pai -m anthropic:claude-opus-4-7
 - [steveandroulakis/temporal-langgraph-checkpoint-recovery](https://github.com/steveandroulakis/temporal-langgraph-checkpoint-recovery)
 
 ### Architecture diagrams
-- ![Temporal codec server architecture](assets/temporal-code-server-arch.png)
+- ![Temporal data converter architecture](assets/temporal-data-converter-arch.png) — accompanies [docs/temporal/codec-server.md](docs/temporal/codec-server.md)
 
 ---
 
