@@ -21,9 +21,10 @@ _(pull from backlog when ready)_
 - [ ] Temporal server + workflow requirements
 
 **Research**
-- [ ] Mine [steveandroulakis/temporal-ralph-wiggum](https://github.com/steveandroulakis/temporal-ralph-wiggum) and [steveandroulakis/temporal-langgraph-checkpoint-recovery](https://github.com/steveandroulakis/temporal-langgraph-checkpoint-recovery) for code-organization patterns worth borrowing
+- [ ] Decide which inspiration-notes ideas to act on — see [docs/dev_docs/inspiration-notes.md](docs/dev_docs/inspiration-notes.md)
 
 ### Done
+- [x] 2026-05-25 — Mined steveandroulakis repos; findings in [docs/dev_docs/inspiration-notes.md](docs/dev_docs/inspiration-notes.md) — actionable hooks into lessons 05, 07, 08, 09 and the capstones
 - [x] 2026-05-25 — Codified lesson file decomposition standard as [dev guide rule 3.6](docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md#36-file-decomposition--split-only-when-something-forces-it); slimmed CLAUDE.md pointer
 - [x] 2026-05-25 — Drafted [`pai` REPL quickstart](docs/pai-quickstart.md)
 - [x] 2026-05-25 — Removed broken `make test-all`; renamed asset to `temporal-data-converter-arch.png`; codec server doc now uses Henry's dedicated SVG
