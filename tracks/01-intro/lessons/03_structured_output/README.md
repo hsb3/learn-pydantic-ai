@@ -12,9 +12,28 @@ Free text means downstream code has to parse, regex, and pray. With `output_type
 Setting `output_type=YourModel` swaps the model's job from "produce text" to "fill this schema". Behind the scenes, pydantic-ai registers a hidden `final_result` tool whose schema mirrors your model — the model "calls" that tool with the answer, and pydantic-ai validates the args into a `YourModel` instance.
 
 ## Walk the code
-- `03_structured_output.py:17` — `CityLocation` is just a Pydantic `BaseModel`. `Field(description=...)` text is included in the schema sent to the model, so it actually shapes the answer.
-- `03_structured_output.py:24` — `Agent(FLASH, output_type=CityLocation)`. No tools, no special config — the type alone is the contract.
-- `03_structured_output.py:30` — `out: CityLocation = result.output`. The variable is typed; your editor knows `out.latitude` is a `float`.
+
+**`CityLocation`** is just a Pydantic `BaseModel`. `Field(description=...)` text is included in the schema sent to the model, so it actually shapes the answer.
+
+```python
+class CityLocation(BaseModel):
+    city: str
+    country: str
+    latitude: float = Field(description="Decimal degrees, north positive.")
+    longitude: float = Field(description="Decimal degrees, east positive.")
+```
+
+**`agent`** is constructed with `output_type=CityLocation`. No tools, no special config — the type alone is the contract.
+
+```python
+agent = Agent(FLASH, output_type=CityLocation)
+```
+
+**`result.output`** comes back already validated; assigning it to a typed local makes the editor's intellisense fully aware of the shape (`out.latitude` is a `float`).
+
+```python
+out: CityLocation = result.output
+```
 
 ## Run
 ```bash

@@ -16,11 +16,44 @@ Load an agent's configuration from YAML (template strings, capabilities, model) 
 `Hooks` is itself a capability. Inside, `@hooks.on.before_model_request`, `@hooks.on.before_tool_execute`, `@hooks.on.run_error`, etc., register callbacks for specific lifecycle events.
 
 ## Walk the code
-- `agent.yaml` — model, instructions with `{{ user_name }}` and `{{ today }}` template variables, a Thinking capability declared declaratively.
-- `12_yaml_agent_with_hooks.py:41` — `Hooks()` instance.
-- `12_yaml_agent_with_hooks.py:44` — `@hooks.on.before_model_request` decorator. The handler receives `RunContext[DepsT]` and a mutable `ModelRequestContext`, can transform or short-circuit the request, and must return the (possibly modified) context.
-- `12_yaml_agent_with_hooks.py:53` — `@hooks.on.run_error` — fires on uncaught exceptions in the run.
-- `12_yaml_agent_with_hooks.py:59` — `Agent.from_file(..., deps_type=UserContext, capabilities=[hooks])`. YAML capabilities + Python `Hooks` capability are merged.
+
+**`agent.yaml`** — sibling file in this lesson dir. Declares the model, instructions with `{{ user_name }}` and `{{ today }}` template variables, and a Thinking capability declaratively.
+
+**`hooks`** is a `Hooks()` instance — itself a capability. You attach handlers to it via decorators on its `.on` namespace.
+
+```python
+hooks = Hooks()
+```
+
+**`log_request`** is registered with `@hooks.on.before_model_request`. The handler receives `RunContext[DepsT]` and a mutable `ModelRequestContext`, can transform or short-circuit the request, and must return the (possibly modified) context.
+
+```python
+@hooks.on.before_model_request
+async def log_request(
+    ctx: RunContext[UserContext],
+    request_context: ModelRequestContext,
+) -> ModelRequestContext:
+    print(f"[hook] sending {len(request_context.messages)} messages to model")
+    return request_context
+```
+
+**`log_failure`** uses `@hooks.on.run_error` — fires on uncaught exceptions in the run.
+
+```python
+@hooks.on.run_error
+async def log_failure(ctx: RunContext[UserContext], error: BaseException) -> None:
+    print(f"[hook] run failed: {type(error).__name__}: {error}")
+```
+
+**`agent`** is constructed by `Agent.from_file(...)`, with the YAML capabilities merged with the Python `hooks` capability — both apply at runtime.
+
+```python
+agent = Agent.from_file(
+    Path(__file__).parent / "agent.yaml",
+    deps_type=UserContext,
+    capabilities=[hooks],
+)
+```
 
 ## Run
 ```bash
@@ -39,4 +72,4 @@ Expected: `[hook] sending 1 messages to model`, a `---`, then a one-paragraph re
 - **`Agent.from_file` returns a less-typed agent.** YAML loses the static generics — output type defaults to `str` and deps to `Any` unless you pass them explicitly. Lean on `deps_type=` and `output_type=` on `from_file()` if you want type checking back.
 
 ## Next
-You've completed the curriculum. Re-read [00-orientation](./00-orientation.md) — the vocabulary section will read very differently now. From here, the productive next steps are: real Logfire integration (`logfire.instrument_pydantic_ai()`), MCP servers, the `ProcessHistory` capability for long conversations, and `iter()` for step-by-step control of the agent loop.
+You've completed Track 01. Re-read [00_orientation](../00_orientation/README.md) — the vocabulary section will read very differently now. From here, the productive next steps are: real Logfire integration (`logfire.instrument_pydantic_ai()`), MCP servers, the `ProcessHistory` capability for long conversations, `iter()` for step-by-step control of the agent loop — or jump straight to [Track 02](../../README.md) to run agents durably under Temporal.

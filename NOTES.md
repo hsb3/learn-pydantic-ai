@@ -8,7 +8,7 @@
 _(nothing right now)_
 
 ### Next up
-- [ ] Track 01 README rewrite — line-number code refs (`02_hello_agent.py:16`) replaced by symbol refs + verbatim snippets per [LESSON-DEVELOPMENT-GUIDE](docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md) rule 3.2 (13 lesson READMEs)
+_(pull from backlog when ready)_
 
 ### Backlog
 
@@ -24,6 +24,7 @@ _(nothing right now)_
 - [ ] Temporal server UI tour
 
 ### Done
+- [x] 2026-05-25 — Track 01 lesson READMEs (02–12) rewritten to symbol-anchored prose + verbatim snippets per dev guide rule 3.2; lesson 10 tests still pass
 - [x] 2026-05-25 — Drafted [Temporal server + workflow requirements](docs/temporal/workflow-requirements.md) explainer (the four collaborators, minimum workflow, determinism contract, activity contract, pre-flight checklist)
 - [x] 2026-05-25 — Applied 2 inspiration findings: lesson 07 now teaches signals **and** queries side-by-side (ralph-wiggum pattern); lesson 08 now actually demonstrates `continue_as_new` instead of linking out
 - [x] 2026-05-25 — Mined steveandroulakis repos; findings in [docs/dev_docs/inspiration-notes.md](docs/dev_docs/inspiration-notes.md) — actionable hooks into lessons 05, 07, 08, 09 and the capstones

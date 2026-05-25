@@ -17,9 +17,38 @@ Both doubles plug in via `agent.override(model=...)`, a context manager that swa
 Never set `agent.model = SomeModel()` directly. The override context manager is the only sanctioned way to swap; it restores the original on exit.
 
 ## Walk the code
-- `10_testing.py:48` — `with weather_agent.override(model=TestModel()):` — three lines, zero assumptions about the real model.
-- `10_testing.py:56` — `_scripted_model` inspects `messages` to decide whether the tool has already returned, then emits the next `ModelResponse`. This is the FunctionModel pattern: branch on the state of the conversation so far.
-- `10_testing.py:69–76` — Note `tool_name="final_result"` for the structured output step. That's the auto-registered tool pydantic-ai uses to deliver typed output.
+
+**`test_agent_wires_up_with_testmodel`** swaps the real model for `TestModel()` inside an `override` context manager. The auto-generated output is valid for `Weather`, so the assertion holds — three lines, zero assumptions about the real model.
+
+```python
+def test_agent_wires_up_with_testmodel() -> None:
+    with weather_agent.override(model=TestModel()):
+        result = weather_agent.run_sync("Anything")
+    assert isinstance(result.output, Weather)
+```
+
+**`_scripted_model`** is the FunctionModel pattern: branch on the state of `messages` to decide what to emit next. First call → tool call; after the tool returns → the structured-output delivery.
+
+```python
+def _scripted_model(messages, info):
+    has_tool_return = any(
+        p.part_kind == "tool-return" for m in messages for p in m.parts
+    )
+    if not has_tool_return:
+        return ModelResponse(
+            parts=[ToolCallPart(tool_name="lookup_weather", args={"city": "Paris"})]
+        )
+    return ModelResponse(
+        parts=[
+            ToolCallPart(
+                tool_name="final_result",
+                args={"city": "Paris", "summary": "sunny", "fahrenheit": 72},
+            )
+        ]
+    )
+```
+
+Note `tool_name="final_result"` for the structured-output step — that's the auto-registered tool pydantic-ai uses to deliver typed output. Without it, the model would just emit a `TextPart` and the agent wouldn't have a `Weather` to return.
 
 ## Run
 ```bash

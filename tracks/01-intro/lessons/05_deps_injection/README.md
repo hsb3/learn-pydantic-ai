@@ -54,10 +54,51 @@ Translation table:
 You almost never mutate `agent.model`, `agent.instructions`, etc. — there's no supported setter pattern. Build once at module import; reuse forever.
 
 ## Walk the code
-- `05_deps_injection.py:24` — `CustomerDB` is just a dataclass standing in for a real client. The type matters; the implementation doesn't.
-- `05_deps_injection.py:34` — `Agent[CustomerDB, str](FLASH, deps_type=CustomerDB, ...)`. The generic and the runtime `deps_type=` say the same thing; together they give you static + runtime safety.
-- `05_deps_injection.py:44` — `@agent.tool` (not `tool_plain`). First param is `ctx: RunContext[CustomerDB]`.
-- `05_deps_injection.py:70` — `agent.run_sync(..., deps=db)` is where the dependency actually arrives.
+
+**`CustomerDB`** is just a dataclass standing in for a real client. The type matters; the implementation doesn't.
+
+```python
+@dataclass
+class CustomerDB:
+    customers: dict[int, dict[str, str | float]]
+
+    def get(self, customer_id: int) -> dict[str, str | float] | None:
+        return self.customers.get(customer_id)
+```
+
+**`agent`** is constructed with `Agent[CustomerDB, str](..., deps_type=CustomerDB, ...)`. The generic parameter and the runtime `deps_type=` say the same thing; together they give you static + runtime safety.
+
+```python
+agent = Agent[CustomerDB, str](
+    FLASH,
+    deps_type=CustomerDB,
+    instructions=(
+        "You are a customer-support agent. Use the tools to look up account "
+        "info. Be concise."
+    ),
+)
+```
+
+**`get_customer_balance`** uses `@agent.tool` (not `tool_plain`), with `ctx: RunContext[CustomerDB]` as the first parameter. `ctx.deps` is the value handed to `run_sync(..., deps=...)`.
+
+```python
+@agent.tool
+def get_customer_balance(ctx: RunContext[CustomerDB], customer_id: int) -> float:
+    """Return the current balance for the customer with the given id."""
+    row = ctx.deps.get(customer_id)
+    if row is None:
+        raise ValueError(f"No customer with id {customer_id}")
+    return float(row["balance"])
+```
+
+**`agent.run_sync(..., deps=db)`** is where the dependency actually arrives — `db` becomes `ctx.deps` inside every tool call.
+
+```python
+result = agent.run_sync(
+    "What's the balance for customer 1? Give a friendly one-line answer.",
+    deps=db,
+)
+```
 
 ## Run
 ```bash

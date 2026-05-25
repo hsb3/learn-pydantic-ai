@@ -20,10 +20,43 @@ Three kinds of instruction sources, evaluated and concatenated on every run:
 All three end up in the system prompt before the user message goes to the model. The model handling it can be swapped per call via `model=`.
 
 ## Walk the code
-- `06_dynamic_instructions.py:34` — Agent has **no default model**. `run_sync(..., model=...)` is required; this makes provider-switching explicit.
-- `06_dynamic_instructions.py:41` — `@agent.instructions` with a `RunContext[User]` — reads `ctx.deps.name`.
-- `06_dynamic_instructions.py:51` — `@agent.instructions` with no params — for facts that don't depend on deps (today's date).
-- `06_dynamic_instructions.py:64` — Loop pairs each user with a different provider; `model=MODELS[provider]["fast"]` is the per-call override. Same `agent`, three LLMs.
+
+**`agent`** has **no default model**. `run_sync(..., model=...)` is required at every call; this makes provider-switching explicit and impossible to forget.
+
+```python
+agent = Agent[User, str](
+    deps_type=User,
+    instructions="You are a polite scheduling assistant.",
+)
+```
+
+**`add_user_name`** is `@agent.instructions` with a `RunContext[User]` — reads `ctx.deps.name` and returns a string the framework appends to the system prompt.
+
+```python
+@agent.instructions
+def add_user_name(ctx: RunContext[User]) -> str:
+    return f"Address the user by name: {ctx.deps.name}."
+```
+
+**`add_today`** is `@agent.instructions` with no params — for facts that don't depend on deps. Sync or async, both work.
+
+```python
+@agent.instructions
+def add_today() -> str:
+    return f"Today's date is {date.today().isoformat()}."
+```
+
+**The loop in `main`** pairs each user with a different provider; `model=MODELS[provider]["fast"]` is the per-call override. Same `agent`, three LLMs.
+
+```python
+for user, provider in runs:
+    model = MODELS[provider]["fast"]
+    result = agent.run_sync(
+        "What day is it tomorrow?",
+        deps=user,
+        model=model,  # per-call override; agent has no default
+    )
+```
 
 ## Run
 ```bash

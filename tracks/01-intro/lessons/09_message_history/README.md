@@ -19,9 +19,22 @@ The chat-loop pattern: pass `result.all_messages()` as `message_history=` on the
 When `message_history` is non-empty, pydantic-ai **does not** re-add the system prompt — it assumes the prior messages already carry the relevant context. If you change `instructions`, the change won't take effect mid-conversation unless you reset history.
 
 ## Walk the code
-- `09_message_history.py:30` — `history = []` starts empty.
-- `09_message_history.py:38` — `agent.run_sync(prompt, message_history=history)`. First iteration sends just the user prompt (no history); later iterations thread the prior turns.
-- `09_message_history.py:41` — `history = result.all_messages()`. Overwriting (not appending) is the right move — `all_messages()` already includes the prior history.
+
+**`history`** starts as an empty list; the first iteration sends just the user prompt (no history), later iterations thread the prior turns via **`message_history=history`**. After each run, **`history = result.all_messages()`** — overwriting (not appending), because `all_messages()` already includes the prior history.
+
+```python
+history = []  # list[ModelMessage]; starts empty
+
+for prompt in [
+    "I want to learn what a monad is. Don't define it — ask me a question first.",
+    "I do know what a list is in Python.",
+    "OK, given that, what's a monad?",
+]:
+    print(f"\n>>> user: {prompt}")
+    result = agent.run_sync(prompt, message_history=history)
+    print(f"<<< agent: {result.output}")
+    history = result.all_messages()
+```
 
 ## Run
 ```bash

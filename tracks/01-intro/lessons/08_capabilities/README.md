@@ -18,9 +18,31 @@ Agent(MODEL, capabilities=[Thinking(effort="medium"), WebSearch()])
 `Thinking` doesn't add a tool you call; it changes the provider request to allocate reasoning budget. `WebSearch` registers the provider's *native* search tool — no Python search code, no API key juggling. The model decides when to use it.
 
 ## Walk the code
-- `08_capabilities.py:27` — `PRO` (gemini-3-pro-preview). Heavier-weight model for reasoning + tool use.
-- `08_capabilities.py:32–36` — `capabilities=[Thinking(effort="medium"), WebSearch()]`.
-- `08_capabilities.py:48` — Loop over `result.all_messages()` looking for `NativeToolCallPart`. **Native** capabilities use this part class, not the `ToolCallPart` used for your custom function tools.
+
+**`agent`** is built on **`PRO`** (gemini-3-pro-preview) — a heavier-weight model that handles thinking and tool use better than flash — with both capabilities composed via `capabilities=[...]`.
+
+```python
+agent = Agent(
+    PRO,
+    instructions=(
+        "You are a research assistant. Use web search when a question depends "
+        "on recent or specific facts. Cite the source URLs you used."
+    ),
+    capabilities=[
+        Thinking(effort="medium"),
+        WebSearch(),
+    ],
+)
+```
+
+**The inspection loop** over `result.all_messages()` filters for `NativeToolCallPart`. **Native** capabilities use this part class — not the `ToolCallPart` used for your custom function tools — so if you only check for `ToolCallPart` you'll miss native tool calls entirely.
+
+```python
+for msg in result.all_messages():
+    for part in msg.parts:
+        if type(part).__name__ == "NativeToolCallPart":
+            print(f"  web_search → {part.args}")
+```
 
 ## Run
 ```bash

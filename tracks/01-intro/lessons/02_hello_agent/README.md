@@ -12,10 +12,26 @@ Every later lesson is a refinement of these four steps. Knowing exactly what an 
 An **Agent** is a configured caller around an LLM. You hand it a model and instructions; you get back an object with `.output` (your answer), `.usage` (tokens), and `.all_messages()` (the full request/response transcript). That's it. No magic — until you start adding tools, capabilities, and structured output in the next lessons.
 
 ## Walk the code
-- `learn_pydantic_ai/__init__.py` — exposes `FLASH = MODELS["google"]["fast"]`. Model strings are always `"provider:model-name"`. Without the provider prefix, pydantic-ai can't resolve the model.
-- `02_hello_agent.py:16` — `Agent(FLASH, instructions=...)`. `instructions` is the system prompt.
-- `02_hello_agent.py:23` — `agent.run_sync(prompt)` blocks until the model answers; `result.output` is a plain `str` because no `output_type` was set.
-- `02_hello_agent.py:26` — `result.usage` shows token counts. Gemini's `thoughts_tokens` are internal reasoning tokens you pay for but never see.
+
+**`FLASH`** is exposed by `learn_pydantic_ai/__init__.py` as `MODELS["google"]["fast"]`. Model strings are always `"provider:model-name"`; without the provider prefix pydantic-ai can't resolve the model.
+
+**`agent`** is constructed with a model and a system prompt. `instructions=` is the system prompt; no `output_type`, no tools.
+
+```python
+agent = Agent(
+    FLASH,
+    instructions="Reply in one short sentence.",
+)
+```
+
+**`agent.run_sync(prompt)`** blocks until the model answers. `result.output` is a plain `str` because no `output_type` was set. `result.usage` reports token counts; Gemini's `thoughts_tokens` are internal reasoning tokens you pay for but never see.
+
+```python
+result = agent.run_sync('Where does "hello world" come from?')
+print(result.output)
+print("---")
+print(result.usage)
+```
 
 ## Run
 ```bash

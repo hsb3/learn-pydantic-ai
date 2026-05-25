@@ -17,9 +17,18 @@ Long responses can take 5–30 seconds. A chat UI that shows nothing until compl
 Streaming makes the call async — so a CLI entry point uses `asyncio.run(main())`.
 
 ## Walk the code
-- `07_streaming.py:33` — `async with agent.run_stream(...) as stream:`. The context manager guarantees the underlying provider stream is closed even on error.
-- `07_streaming.py:34` — `async for delta in stream.stream_text(delta=True):`. With `delta=True` you get the *new* tokens each step; without it, you get the full accumulated text each step.
-- `07_streaming.py:40` — `stream.usage` (no parens — it's a property in pydantic-ai 1.x).
+
+**`agent.run_stream(...)`** is an async context manager — the `async with` block guarantees the underlying provider stream is closed even on error. **`stream.stream_text(delta=True)`** is the async iterator; with `delta=True` each step is the *new* tokens, without it each step is the full accumulated text. **`stream.usage`** is a property in pydantic-ai 1.x (no parens).
+
+```python
+async with agent.run_stream("Describe a stormy seascape at dusk.") as stream:
+    async for delta in stream.stream_text(delta=True):
+        sys.stdout.write(delta)
+        sys.stdout.flush()
+    print()
+    print("---")
+    print(stream.usage)
+```
 
 ## Run
 ```bash

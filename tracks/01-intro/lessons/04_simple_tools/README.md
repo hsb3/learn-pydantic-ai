@@ -14,9 +14,38 @@ A run is a *loop*: the model can answer, **or** it can call one of your tools. I
 `@agent.tool_plain` is for tools that need nothing from the run — pure functions. The docstring + parameter types become the tool's schema, which the model reads to decide *when* to call it.
 
 ## Walk the code
-- `04_simple_tools.py:32` — `@agent.tool_plain` decorator. No `RunContext` param.
-- `04_simple_tools.py:34` — Docstring `"""Roll a six-sided die. Returns an integer 1-6."""`. The model reads this; write it like prompt copy, not implementation notes.
-- `04_simple_tools.py:51` — The transcript loop prints each part: `ModelRequest user` → `ModelResponse call` → `ModelRequest return` → `ModelResponse text`. This is the agent loop made visible.
+
+**`roll_dice`** is registered with `@agent.tool_plain` — no `RunContext` parameter. The docstring is what the model reads to decide when to call it; write it as prompt copy, not implementation notes.
+
+```python
+@agent.tool_plain
+def roll_dice() -> int:
+    """Roll a six-sided die. Returns an integer 1-6."""
+    return random.randint(1, 6)
+```
+
+**`coin_flip`** has the same shape — second tool, also stateless.
+
+```python
+@agent.tool_plain
+def coin_flip() -> str:
+    """Flip a fair coin. Returns 'heads' or 'tails'."""
+    return random.choice(["heads", "tails"])
+```
+
+**The transcript loop** over `result.all_messages()` prints each part in turn — `UserPromptPart` → `ToolCallPart` → `ToolReturnPart` → `TextPart`. This is the agent loop made visible.
+
+```python
+for msg in result.all_messages():
+    kind = type(msg).__name__
+    for part in msg.parts:
+        label = type(part).__name__
+        if label == "UserPromptPart":
+            print(f"{kind:14} user: {part.content!r}")
+        elif label == "ToolCallPart":
+            print(f"{kind:14} call: {part.tool_name}({part.args})")
+        ...
+```
 
 ## Run
 ```bash

@@ -14,10 +14,42 @@ A child agent is just another callable from the parent's perspective. You expose
 Critical detail: pass `usage=ctx.usage` when delegating so the parent's `RunUsage` accumulates the child's tokens too. Without it, you can't see what the inner run cost.
 
 ## Walk the code
-- `11_multi_agent.py:33` — `outliner` has its own `output_type=Outline` and focused instructions. Could be a different model.
-- `11_multi_agent.py:43` — `writer` is the parent. Its instructions explicitly say "call `make_outline` first."
-- `11_multi_agent.py:53` — `@writer.tool` wraps the child call. The tool's docstring is what the parent's model reads to know when to call it.
-- `11_multi_agent.py:57` — `await outliner.run(topic, usage=ctx.usage)` — `usage=ctx.usage` rolls child tokens into parent totals.
+
+**`outliner`** is the child: its own `output_type=Outline`, focused instructions, could be a different model from the parent.
+
+```python
+outliner = Agent(
+    FLASH,
+    output_type=Outline,
+    instructions=(
+        "Produce a tight outline: catchy title, 3-5 bullet points. "
+        "Bullets are short noun phrases, no full sentences."
+    ),
+)
+```
+
+**`writer`** is the parent. Its instructions explicitly tell the model to call `make_outline` first — without that nudge the parent might skip the tool entirely.
+
+```python
+writer = Agent(
+    FLASH,
+    instructions=(
+        "You write punchy short blog posts (3 paragraphs). "
+        "Before writing, call `make_outline` to plan the structure, then "
+        "write the post following the outline."
+    ),
+)
+```
+
+**`make_outline`** is a `@writer.tool` that internally calls the child. The tool's docstring is what the parent's model reads to know when to call it. `usage=ctx.usage` is the critical detail — without it, the child's tokens disappear from the parent's accounting.
+
+```python
+@writer.tool
+async def make_outline(ctx: RunContext[None], topic: str) -> Outline:
+    """Plan an outline for the given topic. Returns title + bullet points."""
+    result = await outliner.run(topic, usage=ctx.usage)
+    return result.output
+```
 
 ## Run
 ```bash
