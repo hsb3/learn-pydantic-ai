@@ -6,23 +6,13 @@ A codec server is **a small HTTP service you run that the Temporal Web UI and `t
 
 ## Where it sits
 
-This is the data converter picture (in [`assets/temporal-data-converter-arch.png`](../../assets/temporal-data-converter-arch.png)):
+![Codec server architecture](../../assets/temporal-codec-server-dark.svg)
 
-![Data converter architecture](../../assets/temporal-data-converter-arch.png)
+- The **Temporal Cluster** only ever stores and forwards *encoded* bytes.
+- Your **Worker processes** use a Data Converter to encode outbound payloads and decode inbound ones — this is the execution path. See the [Data Converter diagram](../../assets/temporal-data-converter-arch.png) for the worker side.
+- The **Codec Server** is a separate HTTP service *you* operate, sitting next to the Web UI / CLI. It exposes the same codec logic over HTTP so humans can decode payloads they're viewing.
 
-- **You develop**: workflow and activity code (the inner black boxes).
-- **You operate**: SDK Client and Worker processes — both contain a Data Converter that encodes outbound payloads and decodes inbound ones.
-- **Temporal Cluster** only ever stores and forwards *encoded* bytes.
-
-The codec server is the missing piece in that diagram: it's a third process you operate, sitting next to your Web UI / CLI, that exposes the *same* codec logic over HTTP. When a human opens a workflow in the UI, the UI calls `/decode` on your codec server with the encoded bytes from the cluster and gets back something human-readable.
-
-```
-Web UI ──────────► Codec Server (yours) ───► decoded JSON shown in UI
-   │                    ▲
-   │ encoded bytes      │ uses same Codec class your workers use
-   ▼                    │
-Temporal Cluster ───────┘
-```
+When a human opens a workflow in the UI, the UI calls `/decode` on your codec server with the encoded bytes from the cluster and gets back something human-readable. The cluster never sees the decoded form.
 
 ## Why you'd run one
 
