@@ -4,27 +4,29 @@ The 101: build a real pydantic-ai agent from `Agent(model)` through tests, multi
 
 ## Where to start
 
-Read **[`lessons/00-orientation.md`](lessons/00-orientation.md)** first — it explains the five-phase arc, the study workflow, and the skip-ahead matrix. Then work through the numbered lessons.
+Read **[`lessons/00_orientation/README.md`](lessons/00_orientation/README.md)** first — it explains the five-phase arc, the study workflow, and the skip-ahead matrix. Then work through the numbered lessons.
+
+Each lesson is a directory `lessons/NN_<slug>/` containing the README and the runnable code side by side.
 
 ## Lesson index
 
-| # | Example | Concept |
-|---|---------|---------|
-| 01 | `examples/01_agent_api_tour.py` (notebook) | Tour of `Agent`'s public API |
-| 02 | `examples/02_hello_agent.py` | `Agent`, `run_sync`, plain output |
-| 03 | `examples/03_structured_output.py` | `output_type=PydanticModel` |
-| 04 | `examples/04_simple_tools.py` | `@agent.tool_plain` |
-| 05 | `examples/05_deps_injection.py` | `deps_type`, `RunContext`, `@agent.tool` |
-| 06 | `examples/06_dynamic_instructions.py` | `@agent.instructions` + per-call `model=` switching |
-| 07 | `examples/07_streaming.py` | `run_stream`, `stream_text(delta=True)` |
-| 08 | `examples/08_capabilities.py` | `Thinking`, native `WebSearch` |
-| 09 | `examples/09_message_history.py` | `message_history=` for multi-turn |
-| 10 | `examples/10_testing.py` | `TestModel`, `FunctionModel`, `agent.override()` |
-| 11 | `examples/11_multi_agent.py` | Parent agent delegates via a tool |
-| 12 | `examples/12_yaml_agent_with_hooks.py` | `Agent.from_file`, `Hooks` |
-| 13 | `examples/13_clai_agent_repl.py` (notebook) + `examples/cli_agent.yaml` | Plug a YAML agent into `clai`; `make repl` |
+| # | Lesson | Concept |
+|---|--------|---------|
+| 01 | [Agent API tour](lessons/01_agent_api_tour/README.md) (notebook) | Tour of `Agent`'s public API |
+| 02 | [Hello agent](lessons/02_hello_agent/README.md) | `Agent`, `run_sync`, plain output |
+| 03 | [Structured output](lessons/03_structured_output/README.md) | `output_type=PydanticModel` |
+| 04 | [Simple tools](lessons/04_simple_tools/README.md) | `@agent.tool_plain` |
+| 05 | [Deps injection](lessons/05_deps_injection/README.md) | `deps_type`, `RunContext`, `@agent.tool` |
+| 06 | [Dynamic instructions](lessons/06_dynamic_instructions/README.md) | `@agent.instructions` + per-call `model=` switching |
+| 07 | [Streaming](lessons/07_streaming/README.md) | `run_stream`, `stream_text(delta=True)` |
+| 08 | [Capabilities](lessons/08_capabilities/README.md) | `Thinking`, native `WebSearch` |
+| 09 | [Message history](lessons/09_message_history/README.md) | `message_history=` for multi-turn |
+| 10 | [Testing](lessons/10_testing/README.md) | `TestModel`, `FunctionModel`, `agent.override()` |
+| 11 | [Multi-agent](lessons/11_multi_agent/README.md) | Parent agent delegates via a tool |
+| 12 | [YAML + hooks](lessons/12_yaml_agent_with_hooks/README.md) | `Agent.from_file`, `Hooks` |
+| 13 | [clai agent REPL](lessons/13_clai_agent_repl/README.md) (notebook) | Plug a YAML agent into `clai`; `make repl` |
 
-Appendix: [`lessons/runtimes.md`](lessons/runtimes.md) — `clai`, `Agent.to_web/to_a2a/to_ag_ui`, and a Temporal teaser that leads into Track 02.
+Appendix: [`docs/runtimes.md`](../../docs/runtimes.md) — `clai`, `Agent.to_web/to_a2a/to_ag_ui`, and a Temporal teaser that leads into Track 02.
 
 ## Running lessons
 
@@ -43,7 +45,7 @@ Lessons 01 and 13 ship as `.py` ↔ `.ipynb` pairs (via `jupytext`). Use `make n
 
 ## Imports
 
-All examples import shared helpers from the project-level package:
+All lessons import shared helpers from the project-level package:
 
 ```python
 from learn_pydantic_ai import MODELS, FLASH, PRO

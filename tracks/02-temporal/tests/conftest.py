@@ -19,7 +19,7 @@ import pytest
 # tests/ -> tracks/02-temporal/ -> tracks/ -> repo root
 REPO = Path(__file__).resolve().parents[3]
 TRACK = Path(__file__).resolve().parents[1]  # tracks/02-temporal/
-EXAMPLES = TRACK / "examples"
+LESSONS = TRACK / "lessons"
 
 
 def use_lesson(slug: str, *, extra_dirs: tuple[str, ...] = ()) -> Path:
@@ -43,11 +43,11 @@ def use_lesson(slug: str, *, extra_dirs: tuple[str, ...] = ()) -> Path:
 
     Returns the lesson dir path.
     """
-    target = EXAMPLES / slug
-    extras = [EXAMPLES / d for d in extra_dirs]
+    target = LESSONS / slug
+    extras = [LESSONS / d for d in extra_dirs]
     # Evict every sibling lesson's dir from sys.path so a stale entry
     # can't shadow the one we want.
-    for d in EXAMPLES.iterdir():
+    for d in LESSONS.iterdir():
         if not d.is_dir() or d == target or d in extras:
             continue
         while str(d) in sys.path:

@@ -15,10 +15,10 @@
 PAIRED_NB_PY := $(shell find tracks -type f -name '*.py' 2>/dev/null | xargs grep -l 'formats: ipynb' 2>/dev/null)
 INTRO        := tracks/01-intro
 TEMPORAL     := tracks/02-temporal
-CLAI_AGENT   := $(INTRO)/examples/cli_agent.yaml
-CLAUDE_AGENT := $(INTRO)/examples/clai_anthropic.yaml
+CLAI_AGENT   := $(INTRO)/lessons/13_clai_agent_repl/cli_agent.yaml
+CLAUDE_AGENT := $(INTRO)/lessons/13_clai_agent_repl/clai_anthropic.yaml
 TEMPORAL_COMPOSE := docker compose -f $(TEMPORAL)/docker/docker-compose.yml
-CAPSTONE_COMPOSE := docker compose -f $(TEMPORAL)/examples/11_capstone_fastapi/docker-compose.yml
+CAPSTONE_COMPOSE := docker compose -f $(TEMPORAL)/lessons/11_capstone_fastapi/docker-compose.yml
 
 help:  ## Show this list of targets
 	@awk 'BEGIN { FS = ":.*##"; printf "\nUsage: make <target>\n\nTargets:\n" } \
@@ -69,10 +69,15 @@ repl-claude-web:  ## clai web UI with Claude Sonnet 4.6 + native tools (no YAML 
 
 # ── per-track lesson runners (pattern rules) ───────────────────────────────
 # `make intro-04`, `make intro-10` (pytest), `make intro-01` (notebook)
+# Each lesson lives in tracks/01-intro/lessons/NN_<slug>/ next to its README.
 intro-%:
-	@file=$$(ls $(INTRO)/examples/$**.py 2>/dev/null | head -1); \
+	@dir=$$(ls -d $(INTRO)/lessons/$**/ 2>/dev/null | head -1); \
+	if [ -z "$$dir" ]; then \
+		echo "$(INTRO)/lessons/ — no lesson $* yet"; exit 1; \
+	fi; \
+	file=$$(ls $${dir}$**.py 2>/dev/null | head -1); \
 	if [ -z "$$file" ]; then \
-		echo "No example file matching $(INTRO)/examples/$**.py"; exit 1; \
+		echo "No .py in $$dir"; exit 1; \
 	elif head -3 "$$file" | grep -q "jupyter:"; then \
 		ipynb=$${file%.py}.ipynb; \
 		echo "Intro lesson $* is a paired notebook ($$ipynb)."; \
@@ -85,16 +90,16 @@ intro-%:
 
 # ── temporal track ─────────────────────────────────────────────────────────
 # Pattern targets:
-#   make temporal-NN-worker  -> uv run python tracks/02-temporal/examples/NN_*/worker.py
-#   make temporal-NN         -> uv run python tracks/02-temporal/examples/NN_*/example.py
+#   make temporal-NN-worker  -> uv run python tracks/02-temporal/lessons/NN_*/worker.py
+#   make temporal-NN         -> uv run python tracks/02-temporal/lessons/NN_*/example.py
 # Each lesson is its own subdirectory: a co-located README.md plus the lesson's
 # code. The worker/starter file split is a study-loop convention, not a
 # Temporal requirement — see tracks/02-temporal/README.md.
 
 temporal-%-worker:
-	@dir=$$(ls -d $(TEMPORAL)/examples/$**/ 2>/dev/null | head -1); \
+	@dir=$$(ls -d $(TEMPORAL)/lessons/$**/ 2>/dev/null | head -1); \
 	if [ -z "$$dir" ]; then \
-		echo "$(TEMPORAL)/examples/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \
+		echo "$(TEMPORAL)/lessons/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \
 	elif [ -f "$$dir/worker.py" ]; then \
 		uv run --env-file .env python "$$dir/worker.py"; \
 	else \
@@ -102,9 +107,9 @@ temporal-%-worker:
 	fi
 
 temporal-%:
-	@dir=$$(ls -d $(TEMPORAL)/examples/$**/ 2>/dev/null | head -1); \
+	@dir=$$(ls -d $(TEMPORAL)/lessons/$**/ 2>/dev/null | head -1); \
 	if [ -z "$$dir" ]; then \
-		echo "$(TEMPORAL)/examples/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \
+		echo "$(TEMPORAL)/lessons/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \
 	fi; \
 	pynb=""; \
 	for f in $$dir*.py; do \
@@ -120,7 +125,7 @@ temporal-%:
 	elif [ -f "$$dir/app.py" ]; then \
 		uv run --env-file .env uvicorn --app-dir "$$dir" app:app --port 8001 --reload; \
 	else \
-		echo "$(TEMPORAL)/examples/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \
+		echo "$(TEMPORAL)/lessons/ — no lesson $* yet. See $(TEMPORAL)/README.md"; exit 1; \
 	fi
 
 # ── temporal: self-hosted server (docker-compose) ──────────────────────────
@@ -166,23 +171,23 @@ temporal-11-logs:  ## Tail logs from the capstone worker + API containers
 
 temporal-11-api:  ## Run JUST the FastAPI app locally (worker must be up via temporal-11-worker)
 	uv run --env-file .env uvicorn \
-	  --app-dir $(TEMPORAL)/examples/11_capstone_fastapi app:app \
+	  --app-dir $(TEMPORAL)/lessons/11_capstone_fastapi app:app \
 	  --port 8001 --reload
 
 temporal-11-curl:  ## Drive the capstone end-to-end via curl (server must be up)
-	@bash $(TEMPORAL)/examples/11_capstone_fastapi/demo.sh
+	@bash $(TEMPORAL)/lessons/11_capstone_fastapi/demo.sh
 
 temporal-11-ui:  ## Streamlit frontend for the capstone (worker + temporal-11-api must be up)
 	uv run --env-file .env streamlit run \
-	  $(TEMPORAL)/examples/11_capstone_fastapi/ui.py \
+	  $(TEMPORAL)/lessons/11_capstone_fastapi/ui.py \
 	  --server.port 8501 --server.headless true
 
 # ── tests ──────────────────────────────────────────────────────────────────
 test:  ## Run the intro Lesson 10 test file (fast, mocked)
-	uv run pytest $(INTRO)/examples/10_testing.py -v
+	uv run pytest $(INTRO)/lessons/10_testing/10_testing.py -v
 
-test-all:  ## Discover and run every test under tracks/*/examples (fast, mocked)
-	uv run pytest tracks/*/examples/ -v
+test-all:  ## Discover and run every test under tracks/*/lessons (fast, mocked)
+	uv run pytest $(INTRO)/lessons/ $(TEMPORAL)/lessons/ -v
 
 test-lessons:  ## Live smoke test — every intro lesson via `make intro-NN` (hits real APIs)
 	uv run pytest $(INTRO)/tests/test_lessons.py -v
@@ -204,4 +209,6 @@ dump-models:  ## Regenerate data/models.json (lookup table of valid provider:mod
 
 # ── housekeeping ───────────────────────────────────────────────────────────
 clean:  ## Remove caches and build cruft
-	rm -rf .pytest_cache tracks/*/examples/__pycache__ tracks/*/examples/.ipynb_checkpoints
+	rm -rf .pytest_cache \
+	  $(INTRO)/lessons/__pycache__ $(INTRO)/lessons/.ipynb_checkpoints \
+	  $(TEMPORAL)/lessons/__pycache__ $(TEMPORAL)/lessons/.ipynb_checkpoints

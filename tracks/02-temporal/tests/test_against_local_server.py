@@ -30,7 +30,7 @@ import pytest
 from temporalio.client import Client
 
 TRACK = Path(__file__).resolve().parents[1]
-LESSON_DIR = TRACK / "examples" / "11_capstone_fastapi"
+LESSON_DIR = TRACK / "lessons" / "11_capstone_fastapi"
 WORKER_PY = LESSON_DIR / "worker.py"
 
 ADDRESS = "localhost:7233"

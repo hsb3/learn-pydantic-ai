@@ -36,7 +36,7 @@ def test_lesson_10_pytest() -> None:
 @pytest.mark.parametrize("lesson", NOTEBOOK_LESSONS)
 def test_lesson_notebook_runs(lesson: str) -> None:
     """Lessons 01 and 13 are notebooks — execute headless."""
-    nb = next(TRACK.glob(f"examples/{lesson}_*.ipynb"))
+    nb = next(TRACK.glob(f"lessons/{lesson}_*/{lesson}_*.ipynb"))
     r = run(
         [
             "uv",

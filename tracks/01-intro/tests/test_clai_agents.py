@@ -1,7 +1,7 @@
 """End-to-end tests for the two YAML-defined clai agents.
 
-- tracks/01-intro/examples/cli_agent.yaml         Google Gemini, WebSearch + light Thinking
-- tracks/01-intro/examples/clai_anthropic.yaml    Claude Sonnet 4.6, WebSearch + code_execution
+- tracks/01-intro/lessons/13_clai_agent_repl/cli_agent.yaml         Google Gemini, WebSearch + light Thinking
+- tracks/01-intro/lessons/13_clai_agent_repl/clai_anthropic.yaml    Claude Sonnet 4.6, WebSearch + code_execution
 
 The Anthropic-side tests double as confirmation that pydantic-ai is
 setting the `anthropic-beta` headers correctly for the native tools.
@@ -36,7 +36,7 @@ def _pai(agent: str, prompt: str, timeout: int = 120):
 
 
 def test_cli_agent_responds() -> None:
-    r = _pai("tracks/01-intro/examples/cli_agent.yaml", "What is 2 + 2? One word answer.")
+    r = _pai("tracks/01-intro/lessons/13_clai_agent_repl/cli_agent.yaml", "What is 2 + 2? One word answer.")
     assert r.returncode == 0, r.stdout + r.stderr
     assert "4" in r.stdout or "four" in r.stdout.lower(), (
         f"unexpected output:\n{r.stdout}"
@@ -45,7 +45,7 @@ def test_cli_agent_responds() -> None:
 
 def test_cli_agent_uses_web_search() -> None:
     r = _pai(
-        "tracks/01-intro/examples/cli_agent.yaml",
+        "tracks/01-intro/lessons/13_clai_agent_repl/cli_agent.yaml",
         "Use web search to find the current year. Reply with just the 4-digit year.",
         timeout=180,
     )
@@ -58,7 +58,7 @@ def test_cli_agent_uses_web_search() -> None:
 
 
 def test_claude_agent_responds() -> None:
-    r = _pai("tracks/01-intro/examples/clai_anthropic.yaml", "What is 2 + 2? One word answer.")
+    r = _pai("tracks/01-intro/lessons/13_clai_agent_repl/clai_anthropic.yaml", "What is 2 + 2? One word answer.")
     assert r.returncode == 0, r.stdout + r.stderr
     assert "4" in r.stdout or "four" in r.stdout.lower()
 
@@ -66,7 +66,7 @@ def test_claude_agent_responds() -> None:
 def test_claude_native_web_search() -> None:
     """Exercise Anthropic's native web_search — proves beta headers work."""
     r = _pai(
-        "tracks/01-intro/examples/clai_anthropic.yaml",
+        "tracks/01-intro/lessons/13_clai_agent_repl/clai_anthropic.yaml",
         "Use web search to find what year it is. Reply with just the year.",
         timeout=180,
     )
@@ -80,7 +80,7 @@ def test_claude_native_web_search() -> None:
 def test_claude_native_code_execution() -> None:
     """Exercise Anthropic's native code_execution — proves beta headers work."""
     r = _pai(
-        "tracks/01-intro/examples/clai_anthropic.yaml",
+        "tracks/01-intro/lessons/13_clai_agent_repl/clai_anthropic.yaml",
         "Use code execution to compute 17! / (12! * 5!). Reply with just the integer.",
         timeout=180,
     )

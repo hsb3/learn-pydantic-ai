@@ -5,7 +5,7 @@ retries, and long human-in-the-loop pauses. 11 lessons, 6 sections, from
 "never touched Temporal" to "your own server running a multi-agent durable
 workflow behind a FastAPI front-end."
 
-Each lesson is a **self-contained directory** under `examples/`. Open the
+Each lesson is a **self-contained directory** under `lessons/`. Open the
 folder and its `README.md` is the lesson — the narrative sits right next to
 the code it explains. There is no separate `lessons/` tree to cross-reference.
 
@@ -29,17 +29,17 @@ capstone.
 
 | # | Lesson | Concept |
 |---|--------|---------|
-| 01 | [Temporal in 15 minutes](examples/01_temporal_tour/README.md) | Temporal primitives + bring up your server (notebook) |
-| 02 | [A workflow is a class](examples/02_stateful_workflow/README.md) | `__init__` state, `@workflow.signal`, `@workflow.query`, `wait_condition` — plain Temporal, no agent yet |
-| 03 | [Hello durable agent](examples/03_hello_durable/README.md) | `TemporalAgent` + `PydanticAIWorkflow` end-to-end |
-| 04 | [Workflow vs activity boundary](examples/04_workflow_vs_activity/README.md) | Read the Temporal history — what's an activity, what isn't |
-| 05 | [Tuning retries & timeouts](examples/05_activity_config/README.md) | Retries, timeouts, per-tool `ActivityConfig` |
-| 06 | [Streaming events](examples/06_streaming/README.md) | `event_stream_handler` — streaming inside a durable workflow |
-| 07 | [Human-in-the-loop with signals](examples/07_hitl_approval/README.md) | `@workflow.signal` + `workflow.wait_condition` gating an agent |
-| 08 | [Long-running activities](examples/08_long_running/README.md) | Activity heartbeats, `start_to_close_timeout` |
-| 09 | [Observability with Logfire](examples/09_observability/README.md) | `LogfirePlugin` for trace correlation |
-| 10 | [Capstone: headless research workflow](examples/10_capstone_headless/README.md) | Multi-agent workflow (clarifier → researcher → writer) with HITL approval |
-| 11 | [Capstone: full production stack](examples/11_capstone_fastapi/README.md) | docker-compose stack (Temporal + worker + FastAPI) pulling in lessons 03–10 |
+| 01 | [Temporal in 15 minutes](lessons/01_temporal_tour/README.md) | Temporal primitives + bring up your server (notebook) |
+| 02 | [A workflow is a class](lessons/02_stateful_workflow/README.md) | `__init__` state, `@workflow.signal`, `@workflow.query`, `wait_condition` — plain Temporal, no agent yet |
+| 03 | [Hello durable agent](lessons/03_hello_durable/README.md) | `TemporalAgent` + `PydanticAIWorkflow` end-to-end |
+| 04 | [Workflow vs activity boundary](lessons/04_workflow_vs_activity/README.md) | Read the Temporal history — what's an activity, what isn't |
+| 05 | [Tuning retries & timeouts](lessons/05_activity_config/README.md) | Retries, timeouts, per-tool `ActivityConfig` |
+| 06 | [Streaming events](lessons/06_streaming/README.md) | `event_stream_handler` — streaming inside a durable workflow |
+| 07 | [Human-in-the-loop with signals](lessons/07_hitl_approval/README.md) | `@workflow.signal` + `workflow.wait_condition` gating an agent |
+| 08 | [Long-running activities](lessons/08_long_running/README.md) | Activity heartbeats, `start_to_close_timeout` |
+| 09 | [Observability with Logfire](lessons/09_observability/README.md) | `LogfirePlugin` for trace correlation |
+| 10 | [Capstone: headless research workflow](lessons/10_capstone_headless/README.md) | Multi-agent workflow (clarifier → researcher → writer) with HITL approval |
+| 11 | [Capstone: full production stack](lessons/11_capstone_fastapi/README.md) | docker-compose stack (Temporal + worker + FastAPI) pulling in lessons 03–10 |
 
 Work through them in order — each lesson's **Review** recalls the one mechanic
 from the previous lesson you need in hand, and its **Bridge** sets up the next.
@@ -228,7 +228,7 @@ Default namespace: `learn-pydantic-ai`. Created automatically.
 ## Coming from LangGraph / langgraph-api?
 
 The authoritative translation table lives in
-[Lesson 03](examples/03_hello_durable/README.md#coming-from-langgraph). Short
+[Lesson 03](lessons/03_hello_durable/README.md#coming-from-langgraph). Short
 version:
 
 - A Temporal `workflow` is a langgraph graph compiled with a checkpointer that

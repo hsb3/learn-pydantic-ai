@@ -20,7 +20,7 @@ make dump-models          # regenerate data/models.json (after upgrading pydanti
 
 ```bash
 make test                 # fast — intro Lesson 10's mocked TestModel suite only
-make test-all             # all tests under tracks/*/examples (fast, mocked)
+make test-all             # all tests under tracks/*/lessons (fast, mocked)
 make test-lessons         # LIVE — every intro lesson, hits real APIs (~costs cents)
 make test-clai            # LIVE — both YAML clai agents incl. Anthropic native tools
 make test-lessons-temporal  # temporal lessons under WorkflowEnvironment.start_local() (no docker)
@@ -54,14 +54,11 @@ Installed editable; every lesson imports from it instead of hard-coding strings 
 - `__init__.py` — `MODELS` dict (`{provider: {fast|smart: "provider:model"}}`) plus `FLASH`/`PRO` Google aliases. Loads `.env` **at import time**. **Validates every `MODELS` preset against `data/models.json` at import time** — a stale or typo'd model string raises immediately. After upgrading pydantic-ai, run `make dump-models` to refresh the catalog, then fix any presets that no longer validate.
 - `temporal.py` — shared Temporal wiring: `connect()` (Client with `PydanticAIPlugin` pre-applied), `run_worker()`, `make_workflow_runner()`, and the `TASK_QUEUE`/`NAMESPACE`/`TEMPORAL_ADDRESS` constants (all `"learn-pydantic-ai"`).
 
-### Two tracks, two layouts
+### Two tracks, same layout
 
-| Track | Layout | Lesson doc lives in |
-|---|---|---|
-| `tracks/01-intro/` | **paired** — `examples/NN_*.py` is code; `lessons/NN-*.md` is the doc (separate tree) | `lessons/` |
-| `tracks/02-temporal/` | **co-located** — each lesson is a directory `examples/NN_<slug>/` whose `README.md` *is* the lesson | the example dir's `README.md` |
-
-Track 02 has **no `lessons/` tree** — that was retired in the 2026-05-24 co-location revamp. A lesson README referencing `lessons/` is a bug.
+Both tracks use **co-located** lessons: each lesson is a directory
+`tracks/<TRACK>/lessons/NN_<slug>/` containing the README (the lesson narrative)
+and the runnable code side by side.
 
 ### Notebooks (jupytext-paired)
 
@@ -83,7 +80,7 @@ The capstones (10, 11) use `workflow.py` (singular), `agents/`, `activities.py`,
 
 ## Authoring lessons
 
-Track 02 lesson format, authoring rules, and the 8-step QC checklist are the living standard in **`docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md`**; the skeleton is `docs/dev_docs/lesson-template.md`. Key rules: the README and its `.py` files are one unit (change both in the same commit); "Walk the code" references symbols, never line numbers, with verbatim snippets; every lesson ships a test that runs its code end-to-end. Lesson READMEs are **exempt** from the 250–500 word README convention — they're teaching artifacts; cut for clarity, not length.
+Track 02 lesson format, authoring rules, and the 7-step QC checklist are the living standard in **`docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md`**; the skeleton is `docs/dev_docs/lesson-template.md`. Key rules: the README and its `.py` files are one unit (change both in the same commit); "Walk the code" references symbols, never line numbers, with verbatim snippets; every lesson ships a test that runs its code end-to-end. Lesson READMEs are **exempt** from the 250–500 word README convention — they're teaching artifacts; cut for clarity, not length.
 
 ## Conventions
 
