@@ -13,19 +13,20 @@ _(pull from backlog when ready)_
 ### Backlog
 
 **Repo organization**
-- [ ] Decide a lesson file decomposition standard: when to split into `models.py` / `activities.py` / `workflows.py` / `worker.py` vs. keep in one file
 - [ ] Track 01 has line-number code refs (`02_hello_agent.py:16`) — rewrite as symbol refs + verbatim snippets per [LESSON-DEVELOPMENT-GUIDE](docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md) rule 3.2
 
 **Concept docs to write** — see [Document stubs](#document-stubs)
 - [ ] Temporal Nexus explainer
 - [ ] Temporal server UI tour
 - [ ] Temporal server + workflow requirements
-- [ ] `pai` REPL quickstart
 
 **Research**
 - [ ] Mine [steveandroulakis/temporal-ralph-wiggum](https://github.com/steveandroulakis/temporal-ralph-wiggum) and [steveandroulakis/temporal-langgraph-checkpoint-recovery](https://github.com/steveandroulakis/temporal-langgraph-checkpoint-recovery) for code-organization patterns worth borrowing
 
 ### Done
+- [x] 2026-05-25 — Codified lesson file decomposition standard as [dev guide rule 3.6](docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md#36-file-decomposition--split-only-when-something-forces-it); slimmed CLAUDE.md pointer
+- [x] 2026-05-25 — Drafted [`pai` REPL quickstart](docs/pai-quickstart.md)
+- [x] 2026-05-25 — Removed broken `make test-all`; renamed asset to `temporal-data-converter-arch.png`; codec server doc now uses Henry's dedicated SVG
 - [x] 2026-05-25 — Co-located track 1 lessons into `lessons/NN_<slug>/` dirs (mirrors track 2); moved `runtimes.md` to `docs/`; YAMLs into the lesson dirs that own them
 - [x] 2026-05-25 — Drafted Temporal codec server explainer ([docs/temporal/codec-server.md](docs/temporal/codec-server.md))
 - [x] 2026-05-25 — Renamed `tracks/02-temporal/examples/` → `lessons/`; Makefile, tests, READMEs, dev guide all updated
@@ -78,14 +79,6 @@ Pages to cover: Workflows · Schedules · Batch · Deployments · Archive · Nam
 - For the server to do its job for a workflow, the following must be true: …
 - Minimum required structure for a workflow: …
 - Optional elements: …
-
-### `pai` REPL quickstart
-```sh
-export ANTHROPIC_API_KEY=...
-uv run pai -m anthropic:claude-opus-4-7
-```
-- What it's good for
-- Useful flags / config
 
 ---
 

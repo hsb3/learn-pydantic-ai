@@ -122,7 +122,20 @@ narrative had drifted a full revision behind its `workflow.py`.)
 - Code snippets are copied from the real files, not paraphrased or remembered.
 - Tone: technical, precise, direct. No filler, no flattery.
 
-### 3.6 Every lesson's code is tested
+### 3.6 File decomposition — split only when something forces it
+
+A single `.py` file is the default. Split a lesson into multiple files when (and only when) one of these conditions holds:
+
+1. **Temporal sandbox isolation** — the workflow class must live in a module with no top-level I/O, network calls, or non-deterministic imports. The sandbox re-imports workflow modules during replay, so anything that runs at import time can break determinism. This is why Track 02 Lessons 02–09 split `workflows.py` (clean) from `worker.py` (does I/O at startup) and `example.py` / `starter.py` (talks to the cluster).
+2. **Two-process study loop** — when the learner runs the worker in one terminal and the starter in another, those are necessarily different processes and therefore different entry-point files (`worker.py` + `example.py` / `starter.py`). Use this split when the lesson's value comes from watching the cluster mediate between the two.
+3. **Capstone complexity** — when the supporting code passes ~3 files of logic, split by role: `agents/`, `activities.py`, `schemas.py`, etc. Don't pre-split a small lesson into named-by-role files just because a future one does.
+4. **External framework boundaries** — when one file is consumed by a different runtime (e.g. `app.py` by `uvicorn`, `ui.py` by `streamlit`), it gets its own file.
+
+If none of the above apply, **keep the lesson in one file.** Track 01 Lessons 02–12 are single-file because Pydantic AI itself imposes none of those constraints — there's no sandbox, no two-process loop, and the lesson scope is one mechanic.
+
+A lesson README that introduces a new file must say *which* of these reasons drove the split (see rule 3.1's "New this lesson" annotation).
+
+### 3.7 Every lesson's code is tested
 
 A learner must never be the first to find out a lesson's code is broken. Every
 lesson ships with an automated test that runs its code end to end — the
@@ -187,7 +200,7 @@ file and confirm the code matches. Snippets are verbatim, not approximate.
 
 **6. Every lesson is tested, and the whole suite is green**
 
-Every lesson must have an automated test (rule 3.6) — a lesson is not done
+Every lesson must have an automated test (rule 3.7) — a lesson is not done
 until its test exists. Run the full suite; it must pass before any lesson
 ships:
 
@@ -208,6 +221,10 @@ finds what the greps cannot.
 
 ## 5. Revision log
 
+- **2026-05-25** — Added authoring rule 3.6 (file decomposition: split only
+  when something forces it). Codifies what Track 02 already does and explains
+  why Track 01 stays single-file. Previous rule 3.6 (every lesson is tested)
+  is now 3.7.
 - **2026-05-25** — Renamed `tracks/02-temporal/examples/` → `lessons/` for naming
   consistency with the on-disk reality (each subdir is a lesson). Dropped QC
   step 5 ("no lesson README references the retired `lessons/` tree") — moot

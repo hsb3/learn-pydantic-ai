@@ -63,13 +63,9 @@ and the runnable code side by side.
 
 Intro lessons 01 & 13 and temporal lesson 01 are `.py` ↔ `.ipynb` pairs. The `.py` (percent-format, `# %%`) is the source of truth. `make nb-sync` aligns them, `make nb-exec` runs them headless (this is how notebook lessons are tested), `make nb-clear` strips outputs before committing.
 
-### Temporal lesson file convention
+### Lesson file decomposition
 
-Temporal mandates **no** file layout. Lessons 02–09 split into `workflows.py` / `worker.py` / `example.py` for two reasons only:
-- **Two-terminal study loop** — worker in terminal A, starter in terminal B.
-- **Workflow modules must be import-safe** — the sandbox re-imports them during replay, so no top-level I/O. Keeping the workflow class alone in `workflows.py` makes that easy to guarantee.
-
-The capstones (10, 11) use `workflow.py` (singular), `agents/`, `activities.py`, and `starter.py`/`app.py`. See `tracks/02-temporal/README.md#anatomy-of-a-temporal-lesson`.
+Single-file lessons by default. Split only when **(a)** Temporal sandbox isolation forces `workflows.py` apart from I/O-doing code, **(b)** a two-process study loop needs separate `worker.py` + `example.py`, **(c)** capstone complexity warrants role-based files (`agents/`, `activities.py`, …), or **(d)** an external framework consumes the file (`app.py` for uvicorn, `ui.py` for streamlit). Full rule: see `docs/dev_docs/LESSON-DEVELOPMENT-GUIDE.md` rule 3.6.
 
 ## Temporal gotchas (cost real debugging time)
 
