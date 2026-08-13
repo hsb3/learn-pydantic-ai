@@ -5,7 +5,7 @@ description = "Self-paced curriculum + deep-dive tracks for the Pydantic AI agen
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.136.3",
-    "pydantic-ai>=1.102.0",
+    "pydantic-ai>=1.106.0",
     "python-dotenv>=1.2.2",
     "streamlit>=1.57.0",
     "temporalio[pydantic]>=1.11.0",
