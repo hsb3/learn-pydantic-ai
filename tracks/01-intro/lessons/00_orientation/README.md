@@ -59,4 +59,4 @@ Start with [Lesson 01 — Agent API tour](../01_agent_api_tour/README.md).
 
 ## Appendix
 
-- [`docs/runtimes.md`](../../../../docs/runtimes.md) — identity (`clai`, `Agent.to_web/to_cli/to_a2a/to_ag_ui`) and a teaser on durable agents with Temporal. Read after Lesson 12 when you're thinking about hosting or crash-safety.
+- [`docs/runtimes.md`](../../../../docs/runtimes.md) — identity (`clai`, `Agent.to_cli/to_web`, and the AG-UI adapter) and a teaser on durable agents with Temporal. Read after Lesson 12 when you're thinking about hosting or crash-safety.

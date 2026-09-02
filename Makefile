@@ -9,7 +9,7 @@
         temporal-up temporal-down temporal-clean temporal-ui temporal-status \
         temporal-11-up temporal-11-down temporal-11-clean temporal-11-build \
         temporal-11-logs temporal-11-api temporal-11-curl temporal-11-ui \
-        dump-models clean
+        ag-ui ag-ui-check dump-models clean
 
 # ── auto-discover jupytext-paired notebooks across all tracks ──────────────
 PAIRED_NB_PY := $(shell find tracks -type f -name '*.py' 2>/dev/null | xargs grep -l 'formats: ipynb' 2>/dev/null)
@@ -199,6 +199,13 @@ test-against-local-server:  ## Smoke test against your docker-compose server (re
 	uv run --env-file .env pytest $(TEMPORAL)/tests/test_against_local_server.py -v
 
 test-live: test-lessons test-clai test-lessons-temporal  ## Every live test (intro lessons + clai + temporal lessons)
+
+# ── AG-UI runtime example (docs/runtimes.md) ───────────────────────────────
+ag-ui:  ## Serve the AG-UI example on :8002 (keyless — uses TestModel)
+	uv run python docs/ag_ui_app.py
+
+ag-ui-check:  ## Drive the AG-UI example in-process and assert the event envelope
+	uv run python docs/ag_ui_app.py --check
 
 # ── model lookup ───────────────────────────────────────────────────────────
 dump-models:  ## Regenerate data/models.json (lookup table of valid provider:model strings)

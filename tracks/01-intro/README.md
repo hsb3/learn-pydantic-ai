@@ -27,7 +27,7 @@ Each lesson is a directory `lessons/NN_<slug>/` containing the README and the ru
 | 13 | [clai agent REPL](lessons/13_clai_agent_repl/README.md) (notebook) | Plug a YAML agent into `clai`; `make repl` |
 | 14 | [Logfire observability](lessons/14_logfire_observability/README.md) | `logfire.instrument_pydantic_ai()` — call-tree traces for any agent |
 
-Appendix: [`docs/runtimes.md`](../../docs/runtimes.md) — `clai`, `Agent.to_web/to_a2a/to_ag_ui`, and a Temporal teaser that leads into Track 02.
+Appendix: [`docs/runtimes.md`](../../docs/runtimes.md) — `clai`, `Agent.to_web()`, the AG-UI adapter (with a keyless runnable example), and a Temporal teaser that leads into Track 02.
 
 ## Running lessons
 

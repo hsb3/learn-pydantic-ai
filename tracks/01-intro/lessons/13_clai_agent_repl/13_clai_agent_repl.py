@@ -78,5 +78,5 @@ print(result.output)
 # ## 4. From here
 #
 # - For interactive use, exit this notebook and run `make repl`.
-# - For hosting beyond the terminal — `Agent.to_web()`, `Agent.to_a2a()`,
-#   durable execution with Temporal — see [`lessons/runtimes.md`](../lessons/runtimes.md).
+# - For hosting beyond the terminal — `Agent.to_web()`, the AG-UI adapter,
+#   durable execution with Temporal — see [`docs/runtimes.md`](../../../../docs/runtimes.md).
