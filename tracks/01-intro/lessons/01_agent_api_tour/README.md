@@ -92,8 +92,8 @@ All of them accept the same per-run kwargs: `deps=`, `message_history=`, `model=
 - `.stream_text(delta=True)` — async iter of *new* text chunks
 - `.stream_text(delta=False)` — async iter of *accumulated* text
 - `.stream_output()` — async iter of partial typed outputs
-- `.stream_responses()` — async iter of raw `ModelResponse`s
-- `.usage` — **property** (no parens; old code shows `.usage()` — deprecated in 1.x)
+- `.stream_response()` — async iter of raw `ModelResponse`s (was `.stream_responses()`, plural, in 1.x)
+- `.usage` — **property** (no parens; old code shows `.usage()`, removed in 2.x)
 - `.all_messages()` — only after the `async with` block exits
 
 ## Supporting types you'll meet

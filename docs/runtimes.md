@@ -12,8 +12,22 @@ The agent loop is just a Python object by default. To give it identity, pydantic
 |---|---|---|---|
 | `agent.to_cli()` / `to_cli_sync()` | *(runs)* | Interactive terminal REPL bound to **this specific agent** | direct call |
 | `agent.to_web()` | `Starlette` app | A hosted chat UI for this agent (HTML + SSE streaming) | `uvicorn` |
-| `agent.to_a2a()` | `FastA2A` app | ASGI app speaking the [Agent-to-Agent](https://google.github.io/A2A/) protocol | `uvicorn` |
-| `agent.to_ag_ui()` | `AGUIApp` | ASGI app speaking the AG-UI wire format (chat UIs, streaming) | `uvicorn` |
+
+Two frontages that *used* to be `to_X()` methods aren't anymore — they moved out of
+`Agent` in 2.x, in opposite directions:
+
+| Protocol | What you use now | Where it lives |
+|---|---|---|
+| **AG-UI** (chat UIs, streaming) | `AGUIAdapter.dispatch_request(request, agent=agent)` inside **your own** route | `pydantic_ai.ui.ag_ui`, needs the `ag-ui` extra |
+| **A2A** ([Agent-to-Agent](https://google.github.io/A2A/)) | `fasta2a.pydantic_ai.agent_to_a2a(agent)` | the separate `fasta2a` package — no longer bundled |
+
+The AG-UI move is the more interesting one, and it's a pattern worth recognising:
+a factory that returned a whole app became an adapter you call from a route you
+own. You get the app; the library gets one request. `pydantic_ai.ui` is the family
+— `ag_ui` and `vercel_ai` are two adapters with the same shape.
+
+> **A2A is not exercised in this repo.** It needs a dependency we don't install, so
+> the row above is from the upstream migration map, not something these lessons run.
 
 ### `clai` — the global REPL / one-shot CLI
 
@@ -51,7 +65,56 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 
-Same idea for `to_a2a()` (Agent-to-Agent protocol — interop with other A2A agents) and `to_ag_ui()` (AG-UI streaming protocol — plug into front-ends that speak it).
+### AG-UI — `AGUIAdapter` in a route you own
+
+There is no `agent.to_ag_ui()` to call. You write the route; the adapter turns one
+request into a streaming AG-UI response. The whole runnable example lives at
+[`ag_ui_app.py`](ag_ui_app.py) next to this file — it uses `TestModel`, so unlike
+every other runtime here it needs **no API key**:
+
+```python
+# docs/ag_ui_app.py (abridged)
+from pydantic_ai import Agent
+from pydantic_ai.models.test import TestModel
+from pydantic_ai.ui.ag_ui import AGUIAdapter
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.routing import Route
+
+agent = Agent(TestModel())
+
+
+@agent.tool_plain
+def get_weather(city: str) -> str:
+    return f"It's foggy in {city}."
+
+
+async def run_agent(request: Request):
+    return await AGUIAdapter.dispatch_request(request, agent=agent)
+
+
+app = Starlette(routes=[Route("/", run_agent, methods=["POST"])])
+```
+
+```bash
+make ag-ui          # serve it on :8002
+make ag-ui-check    # or drive it in-process and assert the event envelope
+```
+
+POST a `RunAgentInput` with `accept: text/event-stream` and you get the AG-UI
+envelope back as SSE: `RUN_STARTED`, then `TOOL_CALL_START` / `_ARGS` / `_END` /
+`_RESULT`, then `TEXT_MESSAGE_START` / `_CONTENT`… / `_END`, then `RUN_FINISHED`.
+
+```bash
+curl -N -X POST http://127.0.0.1:8002/ \
+  -H 'content-type: application/json' \
+  -H 'accept: text/event-stream' \
+  -d '{"threadId":"t1","runId":"r1","state":{},"messages":[{"id":"m1","role":"user","content":"What is the weather in SF?"}],"tools":[],"context":[],"forwardedProps":{}}'
+```
+
+Because the adapter takes the agent per call rather than baking it into an app at
+import time, `dispatch_request` is also where per-request `deps=`, `model=`, and
+`message_history=` go — the things a single pre-built app object couldn't vary.
 
 ### Which adapter for which situation?
 
@@ -59,9 +122,9 @@ Same idea for `to_a2a()` (Agent-to-Agent protocol — interop with other A2A age
 |---|---|
 | Test an agent at a terminal, with REPL | `clai` / `pai`, or `agent.to_cli()` |
 | A chat UI without writing a frontend | `clai web` or `agent.to_web()` |
-| Other agents to call yours over HTTP | `agent.to_a2a()` |
-| Plug into a custom React/Next.js front-end | `agent.to_ag_ui()` |
-| Anything serious | uvicorn + one of `to_web` / `to_a2a` / `to_ag_ui` |
+| Other agents to call yours over HTTP | `fasta2a`'s `agent_to_a2a` |
+| Plug into a custom React/Next.js front-end | `AGUIAdapter.dispatch_request` in your own route |
+| Anything serious | uvicorn + `to_web`, or your own app + a `pydantic_ai.ui` adapter |
 
 ---
 
@@ -169,6 +232,6 @@ Topics worth a dedicated lesson when you're ready:
 
 ## TL;DR
 
-- **Identity:** `clai` (terminal), `agent.to_cli()`, `agent.to_web()` (Starlette + uvicorn), `agent.to_a2a()`, `agent.to_ag_ui()`. Pick the protocol that matches who's calling.
+- **Identity:** `clai` (terminal), `agent.to_cli()`, `agent.to_web()` (Starlette + uvicorn), or your own route calling a `pydantic_ai.ui` adapter — `AGUIAdapter.dispatch_request` for AG-UI. A2A left the library for `fasta2a`. Pick the protocol that matches who's calling.
 - **Durability:** wrap with `TemporalAgent`, run inside a `PydanticAIWorkflow`, register `PydanticAIPlugin` on the worker. Same agent code, durable everywhere.
 - DBOS and Prefect are drop-in alternatives if Temporal isn't your team's choice.

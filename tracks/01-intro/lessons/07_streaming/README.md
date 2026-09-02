@@ -42,7 +42,7 @@ Expected: a vivid seascape description appearing chunk-by-chunk, then a `RunUsag
 3. Use `stream.stream_output()` with an `output_type=PydanticModel` agent — you get incremental partial-model updates as the structured output is filled in.
 
 ## Gotchas
-- **`stream.usage` is a property in 1.x.** Older docs/code shows `stream.usage()` — that emits a `PydanticAIDeprecationWarning` and will be removed in v2.
+- **`stream.usage` is a property.** Older docs/code shows `stream.usage()` — that was deprecated in 1.x and is gone in 2.x.
 - **You must consume the stream inside the `async with` block.** Outside the block, the underlying connection is closed.
 - **Streaming + structured output need `stream_output()`**, not `stream_text()` — text streaming on a structured-output agent gives you the raw JSON being built, which isn't usually what you want.
 

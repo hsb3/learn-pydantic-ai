@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-A track-based learning curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent framework. Targets pydantic-ai **1.x**, Python **3.13+**, managed with **uv**. This is teaching material — lessons are the product, not a library someone imports.
+A track-based learning curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent framework. Targets pydantic-ai **2.x**, Python **3.13+**, managed with **uv**. This is teaching material — lessons are the product, not a library someone imports.
 
 ## Commands
 
@@ -67,7 +67,7 @@ Intro lessons 01 & 13 and temporal lesson 01 are `.py` ↔ `.ipynb` pairs. The `
 
 - `docs/temporal/` — Temporal explainers: `codec-server.md`, `workflow-requirements.md` (what the cluster needs from your code)
 - `docs/pai-quickstart.md` — `pai`/`clai` CLI cheatsheet (binary is `pai`, help text says `clai`)
-- `docs/runtimes.md` — pydantic-ai runtime surfaces (clai, `to_web/to_a2a/to_ag_ui`, Temporal teaser)
+- `docs/runtimes.md` — pydantic-ai runtime surfaces (clai, `to_web`, AG-UI via `AGUIAdapter`, Temporal teaser) + `docs/ag_ui_app.py`, its keyless runnable AG-UI example (`make ag-ui`, `make ag-ui-check`)
 - `docs/dev_docs/` — authoring process: `LESSON-DEVELOPMENT-GUIDE.md`, `lesson-template.md`, `inspiration-notes.md` (patterns mined from reference repos), `ai_gen/` (point-in-time AI-generated planning docs)
 
 ### Lesson file decomposition
