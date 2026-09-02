@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-A track-based learning curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent framework. Targets pydantic-ai **1.x**, Python **3.13+**, managed with **uv**. This is teaching material — lessons are the product, not a library someone imports.
+A track-based learning curriculum for the [Pydantic AI](https://ai.pydantic.dev/) agent framework. Targets pydantic-ai **2.x**, Python **3.13+**, managed with **uv**. This is teaching material — lessons are the product, not a library someone imports.
 
 ## Commands
 
